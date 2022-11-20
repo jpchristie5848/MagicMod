@@ -1,6 +1,7 @@
 package jipthechip.diabolism.packets;
 
 import jipthechip.diabolism.entities.ProjectileSpellEntity;
+import jipthechip.diabolism.Utils.MagicProperties;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
@@ -14,6 +15,7 @@ public class DiabolismPackets {
 
     public static final Identifier SET_BLOCK_PACKET = new Identifier("diabolism", "set_block");
     public static final Identifier SET_ENTITY_RADIUS_PACKET = new Identifier("diabolism", "set_entity_radius");
+    public static final Identifier KILL_ENTITY_PACKET = new Identifier("diabolism", "kill_entity");
 
     public static void registerPacketReceivers(){
 
@@ -34,6 +36,19 @@ public class DiabolismPackets {
             client.execute(()->{
                 ((ProjectileSpellEntity) Objects.requireNonNull(handler.getWorld().getEntityById(entityId))).setRadius(radius);
                 System.out.println("set radius to "+radius);
+            });
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(KILL_ENTITY_PACKET, (server, player, handler, buf, sender) -> {
+            int entityId = buf.readInt();
+
+            System.out.println("killing entity "+entityId);
+
+            server.execute(()->{
+                Objects.requireNonNull(player.getWorld().getEntityById(entityId)).kill();
+                if(((MagicProperties)player).getMagicShield() == entityId){
+                    ((MagicProperties)player).setMagicShield(-1);
+                }
             });
         });
     }

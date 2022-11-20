@@ -9,7 +9,8 @@
     "ProjectileUtilMixin",
     "EntityAccessor",
     "PersistentProjectileEntityMixin",
-    "BoxMixin"
+    "BoxMixin",
+    "LivingEntityMixin"
   ],
   "client": [
   ],

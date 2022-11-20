@@ -23,6 +23,8 @@ public class DiabolismEntities {
 
     public static EntityType<ProjectileSpellEntity> PROJECTILE_SPELL;
 
+    public static EntityType<ShieldSpellEntity> SHIELD_SPELL;
+
     public static void registerBlockEntities(){
         ALTAR_BLOCKENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, "diabolism:altar_blockentity", FabricBlockEntityTypeBuilder.create(AltarBlockEntity::new, DiabolismBlocks.CONDUCTIVE_ALTAR, DiabolismBlocks.MOSSY_ALTAR, DiabolismBlocks.CARVED_ALTAR).build(null));
         RUNED_BLOCKENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, "diabolism:runed_blockentity", FabricBlockEntityTypeBuilder.create(RunedBlockEntity::new, DiabolismBlocks.RUNED_COPPER, DiabolismBlocks.RUNED_MOSS, DiabolismBlocks.RUNED_BONE, DiabolismBlocks.RUNED_GLASS).build(null));
@@ -33,9 +35,16 @@ public class DiabolismEntities {
                         .dimensions(EntityDimensions.changing(0.5f,0.5f))
                         .trackRangeChunks(64)
                         .build());
+
+        SHIELD_SPELL = Registry.register(Registry.ENTITY_TYPE, "diabolism:shield_spell_entity",
+                FabricEntityTypeBuilder.<ShieldSpellEntity>create(SpawnGroup.MISC, ShieldSpellEntity::new)
+                        .dimensions(EntityDimensions.changing(0.5f,0.5f))
+                        .trackRangeChunks(64)
+                        .build());
     }
     public static void registerBlockEntityRenderers(){
         BlockEntityRendererRegistry.register(ALTAR_BLOCKENTITY, AltarBlockEntityRenderer::new);
         EntityRendererRegistry.register(PROJECTILE_SPELL, ProjectileSpellEntityRenderer::new);
+        EntityRendererRegistry.register(SHIELD_SPELL, ShieldSpellEntityRenderer::new);
     }
 }
