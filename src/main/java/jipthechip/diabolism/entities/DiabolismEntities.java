@@ -32,7 +32,7 @@ public class DiabolismEntities {
 
         PROJECTILE_SPELL = Registry.register(Registry.ENTITY_TYPE, "diabolism:projectile_spell_entity",
                 FabricEntityTypeBuilder.<ProjectileSpellEntity>create(SpawnGroup.MISC, ProjectileSpellEntity::new)
-                        .dimensions(EntityDimensions.changing(0.5f,0.5f))
+                        .dimensions(EntityDimensions.changing(0.1f,0.1f))
                         .trackRangeChunks(64)
                         .build());
 

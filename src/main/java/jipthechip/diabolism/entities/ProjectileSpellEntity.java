@@ -37,8 +37,8 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
         if(!getEntityWorld().isClient) {
             radius = (float) ((Math.random() * (5.0 - 0.5)) + 0.5);
         }
-        System.out.println("CONSTRUCTOR setting dimensions to: "+EntityDimensions.fixed(radius *2, radius *2));
-        ((EntityAccessor)this).setDimensions(EntityDimensions.fixed(radius *2, radius *2));
+        //System.out.println("CONSTRUCTOR setting dimensions to: "+EntityDimensions.fixed(radius, radius));
+        ((EntityAccessor)this).setDimensions(EntityDimensions.fixed(radius*1.2f, radius*1.2f));
     }
     public ProjectileSpellEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
         super(entityType, world);
@@ -58,7 +58,9 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
 
     public void tick(){
 
-        ((EntityAccessor)this).setDimensions(EntityDimensions.fixed(radius *2, radius *2));
+        System.out.println("Bounding box size in tick: "+MathUtils.distanceBetween2Points(getBoundingBox().minX, getBoundingBox().minY, getBoundingBox().minZ, getBoundingBox().maxX, getBoundingBox().maxY, getBoundingBox().maxZ));
+
+        ((EntityAccessor)this).setDimensions(EntityDimensions.fixed(radius*1.2f, radius*1.2f));
         //System.out.println("before super tick: "+this.getBoundingBox());
 
         super.tick();
@@ -87,14 +89,22 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
                 radiusSynchronized = true;
             }
 
-            int LevelsHorizontal = (int)(Math.log(radius + 1.0)*25);
-            int LevelsVertical = (int)(Math.log(radius + 1.0)*25);
+            int LevelsHorizontal = (int)(Math.log(radius + 1.0)*50);
+            int LevelsVertical = (int)(Math.log(radius + 1.0)*50);
+
+            Box boundingBox = getBoundingBox();
+
+            double halfDeltaX = (boundingBox.maxX-boundingBox.minX)/2;
+            double halfDeltaY = (boundingBox.maxY-boundingBox.minY)/2;
+            double halfDeltaZ = (boundingBox.maxZ-boundingBox.minZ)/2;
+
+            Vec3d boundingBoxCenter = new Vec3d(boundingBox.maxX - halfDeltaX, boundingBox.maxY - halfDeltaY, boundingBox.maxZ - halfDeltaZ);
 
             // spawn particles so entity resembles a sphere
             for(int i = 0; i < LevelsVertical; i++){
                 for(int j = 0; j < LevelsHorizontal; j++){
 
-                    Vec3d position = MathUtils.getPointOnSphere(((float)i/(float)LevelsVertical)*180.0f-90.0f, ((float)j/(float)LevelsHorizontal)*360.0f, radius, this.getPos());
+                    Vec3d position = MathUtils.getPointOnSphere(((float)i/(float)LevelsVertical)*180.0f-90.0f, ((float)j/(float)LevelsHorizontal)*360.0f, radius, boundingBoxCenter);
 
                     PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) world).spawnParticles(player,
                             ParticleTypes.ELECTRIC_SPARK, true, position.getX(), position.getY(), position.getZ(), 1,
@@ -152,10 +162,9 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
     }
 
     @Override
-    protected Box calculateBoundingBox() {
-        float f = this.radius / 2.0F;
-        float g = this.radius;
-        return new Box(this.getX() - (double)f, this.getY(), this.getZ() - (double)f, this.getX() + (double)f, this.getY() + (double)g, this.getZ() + (double)f);
+    public Box calculateBoundingBox() {
+        float f = this.radius*0.6f;
+        return new Box(this.getX() - (double)f, this.getY()-f, this.getZ() - (double)f, this.getX() + (double)f, this.getY() + f, this.getZ() + (double)f);
     }
 
     public void setRadius(float radius){

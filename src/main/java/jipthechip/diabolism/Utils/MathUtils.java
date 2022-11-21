@@ -21,7 +21,7 @@ public class MathUtils {
     }
 
     public static Vec3d getPointOnSphere(float pitch, float yaw, float radius, Vec3d centerPos){
-        return PitchAndYawToVec3d(pitch, yaw).multiply(radius).add(centerPos);
+        return PitchAndYawToVec3d(pitch, yaw).normalize().multiply(radius).add(centerPos);
     }
 
     public static double distanceBetween2Points(double x1, double y1, double z1, double x2, double y2, double z2){

@@ -43,51 +43,54 @@ public abstract class ProjectileUtilMixin {
 //        System.out.println("Max:" +max);
 //        System.out.println("Max - Min"+(max.subtract(min)));
 //        System.out.println("-----------------------------------------");
-//        if(!entity.getEntityWorld().isClient) {
-//            PlayerLookup.tracking(entity).forEach(player -> {
-//                ((ServerWorld) world).spawnParticles(player,
-//                        ParticleTypes.ELECTRIC_SPARK, true, box.minX, box.minY, box.minZ, 1,
-//                        0, 0, 0, 0);
-//                ((ServerWorld) world).spawnParticles(player, ParticleTypes.ELECTRIC_SPARK, true, box.maxX, box.maxY, box.maxZ, 1,
-//                        0, 0, 0, 0);
-//                ((ServerWorld) world).spawnParticles(player, ParticleTypes.ELECTRIC_SPARK, true, box.maxX, box.maxY, box.minZ, 1,
-//                        0, 0, 0, 0);
-//                ((ServerWorld) world).spawnParticles(player, ParticleTypes.ELECTRIC_SPARK, true, box.maxX, box.minY, box.minZ, 1,
-//                        0, 0, 0, 0);
-//                ((ServerWorld) world).spawnParticles(player, ParticleTypes.ELECTRIC_SPARK, true, box.minX, box.minY, box.maxZ, 1,
-//                        0, 0, 0, 0);
-//                ((ServerWorld) world).spawnParticles(player, ParticleTypes.ELECTRIC_SPARK, true, box.minX, box.maxY, box.maxZ, 1,
-//                        0, 0, 0, 0);
-//                ((ServerWorld) world).spawnParticles(player, ParticleTypes.ELECTRIC_SPARK, true, box.maxX, box.minY, box.maxZ, 1,
-//                        0, 0, 0, 0);
-//                ((ServerWorld) world).spawnParticles(player, ParticleTypes.ELECTRIC_SPARK, true, box.minX, box.maxY, box.minZ, 1,
-//                        0, 0, 0, 0);
-//            });
-//        }
 
+        System.out.println("Bounding box size in getEntityCollision: "+MathUtils.distanceBetween2Points(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ));
+
+        if(!entity.getEntityWorld().isClient) {
+            Box finalBox = ((ProjectileSpellEntity)entity).calculateBoundingBox();;
+            PlayerLookup.tracking(entity).forEach(player -> {
+                ((ServerWorld) world).spawnParticles(player,
+                        ParticleTypes.FLAME, true, finalBox.minX, finalBox.minY, finalBox.minZ, 1,
+                        0, 0, 0, 0);
+                ((ServerWorld) world).spawnParticles(player, ParticleTypes.FLAME, true, finalBox.maxX, finalBox.maxY, finalBox.maxZ, 1,
+                        0, 0, 0, 0);
+                ((ServerWorld) world).spawnParticles(player, ParticleTypes.FLAME, true, finalBox.maxX, finalBox.maxY, finalBox.minZ, 1,
+                        0, 0, 0, 0);
+                ((ServerWorld) world).spawnParticles(player, ParticleTypes.FLAME, true, finalBox.maxX, finalBox.minY, finalBox.minZ, 1,
+                        0, 0, 0, 0);
+                ((ServerWorld) world).spawnParticles(player, ParticleTypes.FLAME, true, finalBox.minX, finalBox.minY, finalBox.maxZ, 1,
+                        0, 0, 0, 0);
+                ((ServerWorld) world).spawnParticles(player, ParticleTypes.FLAME, true, finalBox.minX, finalBox.maxY, finalBox.maxZ, 1,
+                        0, 0, 0, 0);
+                ((ServerWorld) world).spawnParticles(player, ParticleTypes.FLAME, true, finalBox.maxX, finalBox.minY, finalBox.maxZ, 1,
+                        0, 0, 0, 0);
+                ((ServerWorld) world).spawnParticles(player, ParticleTypes.FLAME, true, finalBox.minX, finalBox.maxY, finalBox.minZ, 1,
+                        0, 0, 0, 0);
+                ((ServerWorld) world).spawnParticles(player, ParticleTypes.FLAME, true, entity.getPos().x, entity.getPos().y, entity.getPos().z, 1,
+                        0, 0, 0, 0);
+            });
+        }
     }
 
     @ModifyVariable(method = "getEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;F)Lnet/minecraft/util/hit/EntityHitResult;", at = @At("STORE"), ordinal = 0)
     private static Optional<Vec3d> diabolism$optional(Optional<Vec3d> x, World world, Entity entity, Vec3d min, Vec3d max, Box box, Predicate<Entity> predicate, float f) {
         if(entity instanceof ProjectileSpellEntity){
-            System.out.println("Optional is present for new raycast: "+projectileSpellraycast(box, min, max));
-            return projectileSpellraycast(box, min, max);
+            //System.out.println("Optional is present for new raycast: "+projectileSpellraycast(box, min, max));
+            return projectileSpellraycast(((ProjectileSpellEntity)entity).calculateBoundingBox(), min, max);
         }else{
             return x;
         }
     }
 
     private static Optional<Vec3d> projectileSpellraycast(Box box, Vec3d min, Vec3d max) {
-        System.out.println("in Projectile Spell Raycast");
         double d = max.x - min.x;
         double e = max.y - min.y;
         double f = max.z - min.z;
+        System.out.println("e: "+e+" box delta:"+Math.abs((box.minY-box.maxY)));
         double[] ds = new double[]{Math.abs(((box.minX-box.maxX)/2) / d), Math.abs(((box.minY-box.maxY)/2) / e), Math.abs(((box.minZ-box.maxZ)/2) / f)};
 
-        System.out.println("ds array: "+Arrays.toString(ds));
-
+        System.out.println("Initial ds: "+Arrays.toString(ds));
         Direction direction = traceCollisionSide(box, min, ds, (Direction)null, d, e, f);
-        System.out.println("-------------------------------------");
         if (direction == null) {
             return Optional.empty();
         } else {
@@ -122,16 +125,26 @@ public abstract class ProjectileUtilMixin {
 
     @Nullable
     private static Direction traceCollisionSide(double[] traceDistanceResult, @Nullable Direction approachDirection, double deltaX, double deltaY, double deltaZ, double begin, double minX, double maxX, double minZ, double maxZ, Direction resultDirection, double startX, double startY, double startZ, Dimension dim) {
-        double d = Math.abs((begin - startX) / deltaX);
+
+        double d;
+
+        if(approachDirection == Direction.UP){
+            d = Math.abs((begin - (startX)) / deltaX);
+        }else{
+            d = Math.abs((begin - startX) / deltaX);
+        }
+
         double e = startY + d * deltaY;
         double f = startZ + d * deltaZ;
+
         System.out.println("checking dimension "+dim.name());
         System.out.println("d: "+d+" traceDistResult: "+traceDistanceResult[dim.ordinal()]);
         System.out.println("e: "+e+" minx: "+minX+" maxX: "+maxX);
         System.out.println("f: "+f+" minz: "+minZ+" maxZ: "+maxZ);
-        if (0.0D < d && d < traceDistanceResult[dim.ordinal()] && minX - 1.0E-7D < e && e < maxX + 1.0E-7D && minZ - 1.0E-7D < f && f < maxZ + 1.0E-7D) {
+
+        if (0.0D < d && d <= traceDistanceResult[dim.ordinal()] && minX - 1.0E-7D < e && e < maxX + 1.0E-7D && minZ - 1.0E-7D < f && f < maxZ + 1.0E-7D) {
             traceDistanceResult[dim.ordinal()] = d;
-            System.out.println("Set traceDistanceResult to "+d+" for "+dim.name()+" dimension");
+//            System.out.println("Set traceDistanceResult to "+d+" for "+dim.name()+" dimension");
             return resultDirection;
         } else {
             return approachDirection;
