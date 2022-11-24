@@ -32,6 +32,7 @@ public class MathUtils {
         // component of vec1 parallel to vec2
         Vec3d parVec = vec2.multiply(vec1.dotProduct(vec2)/vec2.dotProduct(vec2));
         // component of vec1 perpendicular to vec2
+
         Vec3d perpVec = vec1.subtract(parVec);
         // vector perpendicular to vec2 and perpVec
         Vec3d perpVec2 = vec2.crossProduct(perpVec);
@@ -42,13 +43,16 @@ public class MathUtils {
         return perpRotVec.add(parVec);
     }
 
-    public static Vec3d rodriguesRotation(Vec3d v, Vec3d k, double angle){
-        double radians = Math.toRadians(angle);
-        Vec3d part1 = v.multiply(Math.cos(radians)); // v cos0
-        Vec3d part2 = k.crossProduct(v).multiply(Math.sin(radians)); // (k x v) sin0
-        Vec3d part3 = k.multiply(k.dotProduct(v)).multiply(1 - Math.cos(radians)); // k(k * v)(1 - cos0)
+    public static Vec3d rodriguesRotation(Vec3d v, Vec3d k, double degrees){
+        Vec3d v_norm = v.normalize();
+        Vec3d k_norm = k.normalize();
 
-        return part1.add(part2).add(part3);
+        double radians = Math.toRadians(degrees);
+        Vec3d part1 = v_norm.multiply(Math.cos(radians)); // v cos0
+        Vec3d part2 = k_norm.crossProduct(v_norm).multiply(Math.sin(radians)); // (k x v) sin0
+        Vec3d part3 = k_norm.multiply(k_norm.dotProduct(v_norm)).multiply(1 - Math.cos(radians)); // k(k * v)(1 - cos0)
+
+        return part1.add(part2).add(part3).multiply(v.length()); //(v cos0)+((k x v) sin0)+(k(k * v)(1 - cos0))
     }
 
     public static Vec3d getPerpendicularToLookVector(Vec3d lookVector){

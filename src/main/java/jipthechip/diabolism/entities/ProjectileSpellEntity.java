@@ -29,14 +29,11 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
 
     private float radius;
     private Vec3d velocity;
-    private boolean radiusSynchronized = false;
 
     private void construct(){
         setNoGravity(true);
         setDamage(10.0);
-        if(!getEntityWorld().isClient) {
-            radius = (float) ((Math.random() * (5.0 - 0.5)) + 0.5);
-        }
+
         //System.out.println("CONSTRUCTOR setting dimensions to: "+EntityDimensions.fixed(radius, radius));
         ((EntityAccessor)this).setDimensions(EntityDimensions.fixed(radius*1.2f, radius*1.2f));
     }
@@ -45,9 +42,12 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
         construct();
     }
 
-    public ProjectileSpellEntity(EntityType<? extends PersistentProjectileEntity> type, double x, double y, double z, World world, Vec3d velocity) {
+    public ProjectileSpellEntity(EntityType<? extends PersistentProjectileEntity> type, double x, double y, double z, World world, Vec3d velocity, float radius) {
         super(type, x, y, z, world);
         construct();
+        if(!getEntityWorld().isClient) {
+            this.radius = radius;
+        }
         this.velocity = velocity;
     }
 
@@ -58,7 +58,7 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
 
     public void tick(){
 
-        System.out.println("Bounding box size in tick: "+MathUtils.distanceBetween2Points(getBoundingBox().minX, getBoundingBox().minY, getBoundingBox().minZ, getBoundingBox().maxX, getBoundingBox().maxY, getBoundingBox().maxZ));
+//        System.out.println("Bounding box size in tick: "+MathUtils.distanceBetween2Points(getBoundingBox().minX, getBoundingBox().minY, getBoundingBox().minZ, getBoundingBox().maxX, getBoundingBox().maxY, getBoundingBox().maxZ));
 
         ((EntityAccessor)this).setDimensions(EntityDimensions.fixed(radius*1.2f, radius*1.2f));
         //System.out.println("before super tick: "+this.getBoundingBox());
@@ -75,19 +75,20 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
             }
 
             if(this.velocity != null) {
-                this.setVelocity(this.velocity);
+                super.setVelocity(this.velocity);
+                System.out.println("Setting velocity to: "+this.velocity);
             }
 
-            if(!radiusSynchronized){
-                PacketByteBuf buf = PacketByteBufs.create();
-                buf.writeInt(getId());
-                buf.writeFloat(radius);
-                PlayerLookup.tracking(this).forEach(player -> {
-                    ServerPlayNetworking.send(player, DiabolismPackets.SET_ENTITY_RADIUS_PACKET, buf);
-                    System.out.println("sent packet to player "+player.getUuidAsString()+": "+getId()+"|"+radius);
-                });
-                radiusSynchronized = true;
-            }
+//            if(!synchedWithClient){
+//                PacketByteBuf buf = PacketByteBufs.create();
+//                buf.writeInt(getId());
+//                buf.writeFloat(radius);
+//                PlayerLookup.tracking(this).forEach(player -> {
+//                    ServerPlayNetworking.send(player, DiabolismPackets.SET_ENTITY_RADIUS_PACKET, buf);
+//                    System.out.println("sent packet to player "+player.getUuidAsString()+": "+getId()+"|"+radius);
+//                });
+//                synchedWithClient = true;
+//            }
 
             int LevelsHorizontal = (int)(Math.log(radius + 1.0)*50);
             int LevelsVertical = (int)(Math.log(radius + 1.0)*50);
@@ -171,4 +172,14 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
         this.radius = radius;
     }
 
+
+    public void setRealVelocity(Vec3d velocity){
+        this.velocity = velocity;
+        super.setVelocity(velocity);
+        //System.out.println("set velocity to "+velocity+" in set real velocity");
+    }
+
+    private void synchronizeWithClient(){
+
+    }
 }

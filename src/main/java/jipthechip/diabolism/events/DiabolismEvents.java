@@ -58,6 +58,9 @@ public class DiabolismEvents {
 
             BlockState belowState = lightningEntity.world.getBlockState(blockPos.down());
 
+            //
+            // Event for activating conductive pillars under lightning rods
+            //
             if(belowState.getBlock() == DiabolismBlocks.CONDUCTIVE_PILLAR){
                 BlockState state = lightningEntity.world.getBlockState(blockPos);
                 if(state.getBlock() == Blocks.LIGHTNING_ROD) {
@@ -100,6 +103,9 @@ public class DiabolismEvents {
         {
             ItemStack stackInHand = player.getStackInHand(hand);
 
+            //
+            // Event for casting basic spells
+            //
             if(stackInHand.getItem() == DiabolismItems.BASIC_WAND){
 
                 if(player.isSneaking()){
@@ -112,7 +118,7 @@ public class DiabolismEvents {
                             player.getX() + (direction.getX() * 2),
                             player.getY() + (direction.getY() * 2)+1,
                             player.getZ() + (direction.getZ() * 2),
-                            world, direction.multiply(0.3));
+                            world, direction.multiply(0.3), 1.0f);
 
                     world.spawnEntity(spellEntity);
                 }
@@ -132,7 +138,9 @@ public class DiabolismEvents {
 
             Block block = world.getBlockState(hitResult.getBlockPos()).getBlock();
 
-            // check if used block is a glass block
+            //
+            // Event for creating runed blocks
+            //
             if(block.equals(Blocks.GLASS) || block.equals(Blocks.COPPER_BLOCK)){
 
                 ItemStack stack = player.getStackInHand(hand);
@@ -157,38 +165,42 @@ public class DiabolismEvents {
 
                     return ActionResult.SUCCESS;
                 }
-            }else if(block instanceof AbstractAltarBlock) {
+            }
+            //
+            // Event for adding/removing items from altar
+            //
+            else if(block instanceof AbstractAltarBlock) {
 
                 BlockPos pos = hitResult.getBlockPos();
-                AltarBlockEntity blockEntity = (AltarBlockEntity) world.getBlockEntity(pos);
+                AltarBlockEntity altarBlockEntity = (AltarBlockEntity) world.getBlockEntity(pos);
 
-                if(blockEntity != null && blockEntity.storedItemUpdatable()){
+                if(altarBlockEntity != null && altarBlockEntity.storedItemUpdatable()){
 
                     ItemStack stack = player.getStackInHand(Hand.MAIN_HAND);
                     BlockState state = world.getBlockState(pos);
-                    Item storedItem = blockEntity.getStoredItem();
+                    Item storedItem = altarBlockEntity.getStoredItem();
 
                     if(storedItem != Items.AIR && stack.getItem() != storedItem){
                         if(player.isSneaking()) {
-                            blockEntity.setStoredItem(Items.AIR);
+                            altarBlockEntity.setStoredItem(Items.AIR);
                             if (stack == ItemStack.EMPTY) {
                                 player.setStackInHand(Hand.MAIN_HAND, new ItemStack(storedItem, 1));
                             } else {
                                 world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, new ItemStack(storedItem, 1)));
                             }
-                            blockEntity.markDirty();
+                            altarBlockEntity.markDirty();
                             world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
                             return ActionResult.SUCCESS;
                         }
                     }else if(stack != ItemStack.EMPTY && storedItem == Items.AIR){
-                        blockEntity.setStoredItem(stack.getItem());
+                        altarBlockEntity.setStoredItem(stack.getItem());
                         if(stack.getCount() > 1){
                             stack.setCount(stack.getCount()-1);
                             player.setStackInHand(Hand.MAIN_HAND, stack);
                         }else{
                             player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
                         }
-                        blockEntity.markDirty();
+                        altarBlockEntity.markDirty();
                         world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
                         return ActionResult.SUCCESS;
                     }
