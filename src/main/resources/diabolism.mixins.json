@@ -7,7 +7,6 @@
     "BoxMixin",
     "EntityAccessor",
     "EntityMixin",
-    "ItemAccessor",
     "LightningEntityMixin",
     "LivingEntityMixin",
     "PersistentProjectileEntityMixin",

@@ -25,6 +25,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.asm.mixin.injection.modify.LocalVariableDiscriminator;
 import org.spongepowered.asm.mixin.injection.selectors.ITargetSelector;
 
 import java.util.Arrays;
@@ -78,12 +79,13 @@ public abstract class ProjectileUtilMixin {
 
     @Inject(method = "getEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;F)Lnet/minecraft/util/hit/EntityHitResult;", at = @At("TAIL"), locals= LocalCapture.CAPTURE_FAILHARD)
     private static void diabolism$getEntityCollisionReturn(World world, Entity entity, Vec3d min, Vec3d max, Box box, Predicate<Entity> predicate, float f, CallbackInfoReturnable<EntityHitResult> cir, double d, Entity entity2){
-        System.out.println("entity: "+entity.getClass());
-        System.out.println("entity2: "+entity2.getClass());
+        System.out.println("entity in get entity collision return: "+entity.getClass());
+        System.out.println("entity2 in get entity collision return: "+entity2.getClass());
         if(entity2 instanceof ShieldSpellEntity && entity instanceof ProjectileSpellEntity){
+            System.out.println("old velocity in get entity collision: "+entity.getVelocity());
             Vec3d newVelocity = MathUtils.rodriguesRotation(entity.getVelocity().multiply(-1), ((ShieldSpellEntity)entity2).getPlayerLookVector(), 180);
             ((ProjectileSpellEntity)entity).setRealVelocity(newVelocity);
-//            System.out.println("set velocity to "+newVelocity+" in get entity collision");
+            System.out.println("set velocity to "+newVelocity+" in get entity collision");
         }
     }
 
@@ -96,6 +98,13 @@ public abstract class ProjectileUtilMixin {
             return x;
         }
     }
+
+    @Inject(method = "getEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;F)Lnet/minecraft/util/hit/EntityHitResult;", at=@At(value="INVOKE", target="Lnet/minecraft/util/math/Box;raycast(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Vec3d;)Ljava/util/Optional;"), locals= LocalCapture.CAPTURE_FAILHARD)
+    private static void diabolism$optional(World world, Entity entity, Vec3d min, Vec3d max, Box box, Predicate<Entity> predicate, float f, CallbackInfoReturnable<EntityHitResult> cir, double d, Entity entity2, Iterator var10, Entity entity3, Box box2) {
+        System.out.println("entity class in get entity collision loop: "+entity.getClass());
+        System.out.println("entity3 class in get entity collision loop: "+entity3.getClass());
+    }
+
 
     private static Optional<Vec3d> projectileSpellraycast(Box box, Vec3d min, Vec3d max) {
         double d = max.x - min.x;

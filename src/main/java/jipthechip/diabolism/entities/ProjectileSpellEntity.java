@@ -3,10 +3,7 @@ package jipthechip.diabolism.entities;
 
 import jipthechip.diabolism.Utils.MathUtils;
 import jipthechip.diabolism.mixin.EntityAccessor;
-import jipthechip.diabolism.packets.DiabolismPackets;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
@@ -14,7 +11,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -30,7 +26,7 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
     private float radius;
     private Vec3d velocity;
 
-    private void construct(){
+    private void init(){
         setNoGravity(true);
         setDamage(10.0);
 
@@ -39,12 +35,12 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
     }
     public ProjectileSpellEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
         super(entityType, world);
-        construct();
+        init();
     }
 
     public ProjectileSpellEntity(EntityType<? extends PersistentProjectileEntity> type, double x, double y, double z, World world, Vec3d velocity, float radius) {
         super(type, x, y, z, world);
-        construct();
+        init();
         if(!getEntityWorld().isClient) {
             this.radius = radius;
         }
@@ -53,7 +49,7 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
 
     public ProjectileSpellEntity(EntityType<? extends PersistentProjectileEntity> type, LivingEntity owner, World world) {
         super(type, owner, world);
-        construct();
+        init();
     }
 
     public void tick(){
@@ -76,7 +72,7 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
 
             if(this.velocity != null) {
                 super.setVelocity(this.velocity);
-                System.out.println("Setting velocity to: "+this.velocity);
+                //System.out.println("Setting velocity to: "+this.velocity);
             }
 
 //            if(!synchedWithClient){
@@ -179,7 +175,7 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
         //System.out.println("set velocity to "+velocity+" in set real velocity");
     }
 
-    private void synchronizeWithClient(){
-
+    public boolean isCollidable(){
+        return true;
     }
 }
