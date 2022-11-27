@@ -1,7 +1,11 @@
 {
   "item.diabolism.runic_powder": "Runic Powder",
   "item.diabolism.basic_wand": "Basic Wand",
+  "item.diabolism.volatile_mixture": "Volatile Mixture",
+  "item.diabolism.mortar_and_pestle": "Mortar and Pestle",
+
   "itemGroup.diabolism.diabolism_item_group": "Diabolism",
+
   "block.diabolism.runed_glass": "Runed Glass",
   "block.diabolism.runed_copper": "Runed Copper",
   "block.diabolism.runed_moss": "Runed Moss",

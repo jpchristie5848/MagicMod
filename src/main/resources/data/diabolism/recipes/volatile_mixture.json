@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+        "item": "minecraft:wither_rose"
+    },
+    {
+        "item": "minecraft:chorus_fruit"
+    },
+    {
+        "item": "minecraft:glow_berries"
+    },
+    {
+        "item": "diabolism:mortar_and_pestle"
+    }
+  ],
+  "result": {
+    "item": "diabolism:volatile_mixture",
+    "count": 1
+  }
+}
