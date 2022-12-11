@@ -1,18 +1,22 @@
 package jipthechip.diabolism.events;
 
-import jipthechip.diabolism.Utils.MathUtils;
+import io.wispforest.owo.ui.component.Components;
+import io.wispforest.owo.ui.container.FlowLayout;
+import io.wispforest.owo.ui.core.Component;
+import io.wispforest.owo.ui.core.OwoUIAdapter;
+import io.wispforest.owo.ui.core.Positioning;
+import io.wispforest.owo.ui.event.WindowResizeCallback;
 import jipthechip.diabolism.blocks.AbstractAltarBlock;
 import jipthechip.diabolism.blocks.AbstractAltarComponentBlock;
 import jipthechip.diabolism.blocks.DiabolismBlocks;
-import jipthechip.diabolism.entities.DiabolismEntities;
-import jipthechip.diabolism.entities.ProjectileSpellEntity;
-import jipthechip.diabolism.entities.ShieldSpellEntity;
 import jipthechip.diabolism.entities.blockentities.AltarBlockEntity;
 import jipthechip.diabolism.items.DiabolismItems;
 import jipthechip.diabolism.items.RunicPowder;
-import jipthechip.diabolism.Utils.MagicProperties;
+import jipthechip.diabolism.Utils.IMagicProperties;
+import jipthechip.diabolism.items.potion.DiabolismPotions;
 import jipthechip.diabolism.packets.DiabolismPackets;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
+import jipthechip.diabolism.mixin.HudMixin;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -23,21 +27,26 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.client.util.Window;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.PlayerManager;
+import net.minecraft.text.LiteralTextContent;
+import net.minecraft.text.MutableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DiabolismEvents {
 
@@ -47,6 +56,7 @@ public class DiabolismEvents {
             GLFW.GLFW_MOUSE_BUTTON_2, // The keycode of the key
             "category.diabolism.mouse" // The translation key of the keybinding's category.
     ));
+
 
     public static void registerEvents(){
 
@@ -109,20 +119,42 @@ public class DiabolismEvents {
             if(stackInHand.getItem() == DiabolismItems.BASIC_WAND){
 
                 if(player.isSneaking()){
-                    ((MagicProperties)player).toggleMagicShield();
+                    ((IMagicProperties)player).toggleMagicShield();
+                    return TypedActionResult.success(stackInHand);
                 }else{
-                    //System.out.println("pitch: "+player.getPitch());
-                    //System.out.println("yaw: "+player.getYaw());
-                    Vec3d direction = Vec3d.fromPolar(player.getPitch(), player.getYaw());
-                    ProjectileSpellEntity spellEntity = new ProjectileSpellEntity(DiabolismEntities.PROJECTILE_SPELL,
-                            player.getX() + (direction.getX() * 2),
-                            player.getY() + (direction.getY() * 2)+1,
-                            player.getZ() + (direction.getZ() * 2),
-                            world, direction.multiply(0.3), 1.0f);
+//                    Vec3d direction = Vec3d.fromPolar(player.getPitch(), player.getYaw());
+//                    ProjectileSpellEntity spellEntity = new ProjectileSpellEntity(DiabolismEntities.PROJECTILE_SPELL,
+//                            player.getX() + (direction.getX() * 2),
+//                            player.getY() + (direction.getY() * 2)+1,
+//                            player.getZ() + (direction.getZ() * 2),
+//                            world, direction.multiply(0.3), 1.0f);
+//
+//                    world.spawnEntity(spellEntity);
 
-                    world.spawnEntity(spellEntity);
+//                    WatcherEntity entity = new WatcherEntity(DiabolismEntities.WATCHER, player.getX(), player.getY()+3, player.getZ(), world, player.getId());
+//                    world.spawnEntity(entity);
+
+                    if(((IMagicProperties)player).isAwakened()){
+                        ((IMagicProperties)player).setAwakened(false);
+                        ((IMagicProperties)player).setMaxMagicka(0);
+                        ((IMagicProperties)player).setMagickaRegenRate(0);
+                        ((IMagicProperties)player).setMagicka(0);
+                    }else{
+                        ((IMagicProperties)player).setAwakened(true);
+                        ((IMagicProperties)player).setMaxMagicka(20);
+                        ((IMagicProperties)player).setMagickaRegenRate(1.0f);
+                    }
+
+                    return TypedActionResult.success(stackInHand);
                 }
 
+            }
+
+            else if(stackInHand.getItem() == Items.MILK_BUCKET){
+                if(player.hasStatusEffect(DiabolismPotions.AWAKENING_STATUS_EFFECT)){
+                    player.sendMessage(MutableText.of(new LiteralTextContent("Your body rejects it, you can't turn back now")));
+                    return TypedActionResult.fail(stackInHand);
+                }
             }
 
             return TypedActionResult.pass(stackInHand);
@@ -214,7 +246,13 @@ public class DiabolismEvents {
         //
 
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server)->{
-            ((MagicProperties)handler.player).deinitialize();
+            ((IMagicProperties)handler.player).deinitialize();
         });
+
+        //
+        // REGISTER UI EVENT HANDLERS
+        //
+        UIEvents.registerEvents();
     }
+
 }

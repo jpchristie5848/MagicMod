@@ -1,5 +1,6 @@
 package jipthechip.diabolism.entities;
 
+import net.fabricmc.fabric.api.item.v1.FabricItem;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.util.Identifier;
@@ -14,4 +15,5 @@ public class ProjectileSpellEntityRenderer extends EntityRenderer<ProjectileSpel
     public Identifier getTexture(ProjectileSpellEntity entity) {
         return null;
     }
+
 }

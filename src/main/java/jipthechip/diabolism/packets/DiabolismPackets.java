@@ -1,7 +1,7 @@
 package jipthechip.diabolism.packets;
 
 import jipthechip.diabolism.entities.ProjectileSpellEntity;
-import jipthechip.diabolism.Utils.MagicProperties;
+import jipthechip.diabolism.Utils.IMagicProperties;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
@@ -46,8 +46,8 @@ public class DiabolismPackets {
 
             server.execute(()->{
                 Objects.requireNonNull(player.getWorld().getEntityById(entityId)).kill();
-                if(((MagicProperties)player).getMagicShield() == entityId){
-                    ((MagicProperties)player).setMagicShield(-1);
+                if(((IMagicProperties)player).getMagicShield() == entityId){
+                    ((IMagicProperties)player).setMagicShield(-1);
                 }
             });
         });

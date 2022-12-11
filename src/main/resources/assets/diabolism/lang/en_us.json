@@ -4,6 +4,10 @@
   "item.diabolism.volatile_mixture": "Volatile Mixture",
   "item.diabolism.mortar_and_pestle": "Mortar and Pestle",
 
+  "item.minecraft.potion.effect.awakening_potion": "Potion Of Awakening",
+  "item.minecraft.splash_potion.effect.awakening_potion": "Splash Potion Of Awakening",
+  "item.minecraft.lingering_potion.effect.awakening_potion": "Lingering Potion Of Awakening",
+
   "itemGroup.diabolism.diabolism_item_group": "Diabolism",
 
   "block.diabolism.runed_glass": "Runed Glass",
@@ -15,6 +19,7 @@
   "block.diabolism.carved_altar": "Carved Altar",
   "block.diabolism.conductive_pillar": "Conductive Pillar",
   "block.diabolism.mossy_pillar": "Mossy Pillar",
-  "block.diabolism.carved_pillar": "Carved Pillar"
+  "block.diabolism.carved_pillar": "Carved Pillar",
 
+  "effect.diabolism.awakening_status_effect": "Awakening"
 }

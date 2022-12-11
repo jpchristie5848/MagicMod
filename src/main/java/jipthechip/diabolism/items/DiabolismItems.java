@@ -14,7 +14,7 @@ public class DiabolismItems {
     public static final Item RUNIC_POWDER = new RunicPowder(new FabricItemSettings().group(ItemGroups.DIABOLISM_ITEM_GROUP));
     public static final Item BASIC_WAND = new BasicWand(new FabricItemSettings().group(ItemGroups.DIABOLISM_ITEM_GROUP).maxCount(1));
     public static final Item VOLATILE_MIXTURE = new Item(new FabricItemSettings().group(ItemGroups.DIABOLISM_ITEM_GROUP).maxCount(1));
-    public static final Item MORTAR_AND_PESTLE = new Item(new FabricItemSettings().group(ItemGroups.DIABOLISM_ITEM_GROUP).maxCount(1));
+    public static final Item MORTAR_AND_PESTLE = new MortarAndPestle(new FabricItemSettings().group(ItemGroups.DIABOLISM_ITEM_GROUP).maxCount(1).maxDamage(64).maxDamageIfAbsent(64));
 
 
 
@@ -59,7 +59,5 @@ public class DiabolismItems {
         Registry.register(Registry.ITEM, new Identifier("diabolism", "conductive_pillar"), CONDUCTIVE_PILLAR_BLOCKITEM);
         Registry.register(Registry.ITEM, new Identifier("diabolism", "mossy_pillar"), MOSSY_PILLAR_BLOCKITEM);
         Registry.register(Registry.ITEM, new Identifier("diabolism", "carved_pillar"), CARVED_PILLAR_BLOCKITEM);
-
-
     }
 }
