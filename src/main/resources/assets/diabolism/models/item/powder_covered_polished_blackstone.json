@@ -1,0 +1,17 @@
+{
+  "parent": "diabolism:block/powder_covered_polished_blackstone_1",
+  "overrides": [
+    {
+        "predicate": {
+            "diabolism:progress": 0.5
+        },
+        "model": "diabolism:item/powder_covered_polished_blackstone_2"
+    },
+    {
+        "predicate": {
+            "diabolism:progress": 1.0
+        },
+        "model": "diabolism:item/powder_covered_polished_blackstone_3"
+    }
+  ]
+}

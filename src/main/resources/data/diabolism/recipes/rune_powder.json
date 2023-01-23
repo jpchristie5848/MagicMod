@@ -1,0 +1,21 @@
+{
+  "type": "diabolism:damage_durability",
+  "ingredients": [
+    {
+        "item": "minecraft:quartz"
+    },
+    {
+        "item": "minecraft:amethyst_shard"
+    },
+    {
+        "item": "diabolism:volcanic_powder"
+    },
+    {
+        "item": "diabolism:mortar_and_pestle"
+    }
+  ],
+  "result": {
+    "item": "diabolism:rune_powder",
+    "count": 8
+  }
+}

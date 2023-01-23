@@ -33,6 +33,9 @@ public class DiabolismBlocks {
     public static final Block MOSSY_PILLAR = new MossyPillarBlock(FabricBlockSettings.of(Material.STONE).luminance(createLightLevelFromBlockState(AbstractAltarComponentBlock.ACTIVATED, 15)));
     public static final Block CARVED_PILLAR = new CarvedPillarBlock(FabricBlockSettings.copyOf(Blocks.BONE_BLOCK).luminance(createLightLevelFromBlockState(AbstractAltarComponentBlock.ACTIVATED, 15)));
 
+    public static final Block POWDER_COVERED_POLISHED_BLACKSTONE = new PowderCoveredPolishedBlackstoneBlock(FabricBlockSettings.copyOf(Blocks.POLISHED_BLACKSTONE));
+
+    public static final Block DOUBLE_POLISHED_BLACKSTONE = new DoublePolishedBlackstoneBlock(FabricBlockSettings.copyOf(Blocks.POLISHED_BLACKSTONE));
 
     public static void initializeClient(){
         BlockRenderLayerMap.INSTANCE.putBlock(DiabolismBlocks.RUNED_GLASS, RenderLayer.getCutout());
@@ -62,7 +65,8 @@ public class DiabolismBlocks {
         Registry.register(Registry.BLOCK, new Identifier("diabolism", "mossy_pillar"), MOSSY_PILLAR);
         Registry.register(Registry.BLOCK, new Identifier("diabolism", "carved_pillar"), CARVED_PILLAR);
 
-
+        Registry.register(Registry.BLOCK, new Identifier("diabolism", "powder_covered_polished_blackstone"), POWDER_COVERED_POLISHED_BLACKSTONE);
+        Registry.register(Registry.BLOCK, new Identifier("diabolism", "double_polished_blackstone"), DOUBLE_POLISHED_BLACKSTONE);
     }
 
     private static <J extends Property<T>, T extends Comparable<T>> ToIntFunction<BlockState> createLightLevelFromBlockState(J property, int litLevel) {

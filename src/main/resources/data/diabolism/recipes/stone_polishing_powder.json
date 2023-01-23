@@ -1,0 +1,21 @@
+{
+  "type": "diabolism:damage_durability",
+  "ingredients": [
+    {
+        "item": "minecraft:sand"
+    },
+    {
+        "item": "minecraft:gravel"
+    },
+    {
+        "item": "minecraft:flint"
+    },
+    {
+        "item": "diabolism:mortar_and_pestle"
+    }
+  ],
+  "result": {
+    "item": "diabolism:stone_polishing_powder",
+    "count": 8
+  }
+}

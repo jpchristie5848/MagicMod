@@ -56,10 +56,6 @@ public class WatcherEntity extends Entity {
         return new EntitySpawnS2CPacket(this);
     }
 
-    public void setPlayerEntityId(int playerEntityId) {
-        this.playerEntityId = playerEntityId;
-    }
-
     @Override
     public void tick() {
         super.tick();

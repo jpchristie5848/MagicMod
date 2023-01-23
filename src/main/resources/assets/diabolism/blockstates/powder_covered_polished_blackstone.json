@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "progress=1": {"model": "diabolism:block/powder_covered_polished_blackstone_1" },
+    "progress=2": {"model":  "diabolism:block/powder_covered_polished_blackstone_2"},
+    "progress=3": {"model":  "diabolism:block/powder_covered_polished_blackstone_3"}
+  }
+}

@@ -10,6 +10,6 @@ public class ItemGroups {
 
     public static final ItemGroup DIABOLISM_ITEM_GROUP = FabricItemGroupBuilder.create(
                     new Identifier("diabolism", "diabolism_item_group"))
-            .icon(() -> new ItemStack(DiabolismItems.RUNIC_POWDER))
+            .icon(() -> new ItemStack(DiabolismItems.RUNE_POWDER))
             .build();
 }

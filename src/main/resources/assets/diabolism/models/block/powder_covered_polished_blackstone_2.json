@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "diabolism:block/powder_covered_polished_blackstone_2"
+  }
+}

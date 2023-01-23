@@ -3,6 +3,7 @@ package jipthechip.diabolism.entities;
 
 import jipthechip.diabolism.Utils.MathUtils;
 import jipthechip.diabolism.mixin.EntityAccessor;
+import jipthechip.diabolism.particle.DiabolismParticles;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
@@ -11,6 +12,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -86,8 +88,8 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
 //                synchedWithClient = true;
 //            }
 
-            int LevelsHorizontal = (int)(Math.log(radius + 1.0)*50);
-            int LevelsVertical = (int)(Math.log(radius + 1.0)*50);
+            int LevelsHorizontal = (int) (2.0f * radius * 50.0f);
+            int LevelsVertical = (int) (2.0f * radius * 50.0f);
 
             Box boundingBox = getBoundingBox();
 
@@ -104,8 +106,9 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
                     Vec3d position = MathUtils.getPointOnSphere(((float)i/(float)LevelsVertical)*180.0f-90.0f, ((float)j/(float)LevelsHorizontal)*360.0f, radius, boundingBoxCenter);
 
                     PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) world).spawnParticles(player,
-                            ParticleTypes.ELECTRIC_SPARK, true, position.getX(), position.getY(), position.getZ(), 1,
+                            DiabolismParticles.PROJECTILE_SPELL_PARTICLE, true, position.getX(), position.getY(), position.getZ(), 1,
                             0, 0, 0, 0));
+
                 }
             }
 

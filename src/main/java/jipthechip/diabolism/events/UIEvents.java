@@ -10,7 +10,6 @@ import jipthechip.diabolism.Utils.IMagicProperties;
 import jipthechip.diabolism.mixin.HudMixin;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
 import net.minecraft.util.Identifier;
@@ -44,7 +43,9 @@ public class UIEvents {
         }));
 
         WindowResizeCallback.EVENT.register((client, window) -> {
-            //
+            for(int i = 0; i < MagickaBarComponents.size(); i++){
+                updateMagickaBarIcon(i, window);
+            }
         });
 
         ClientTickEvents.END_CLIENT_TICK.register((client -> {
@@ -54,11 +55,11 @@ public class UIEvents {
             if(HudMixin.getAdapter() != null && adapter == null){
                 adapter = HudMixin.getAdapter();
             }
-            updateScreen(client, client.getWindow());
+            updateMagickaBar(client, client.getWindow());
         }));
     }
 
-    private static void updateScreen(MinecraftClient client, Window window){
+    private static void updateMagickaBar(MinecraftClient client, Window window){
         if(client.player != null && adapter != null){
 
             FlowLayout rootComponent = adapter.rootComponent;
@@ -101,12 +102,7 @@ public class UIEvents {
                 if(i >= oldNumComponents){
                     addMagickaBarIcon(i, newIconType, window);
                 }else if (rootComponent.children().size() >=  i+1){
-                    // if icon state hasn't changed, just update position
-                    if(newIconType.equals(iconType)){
-                        updateMagickaBarIcon(i, window);
-                    }
-                    // if icon state has changed, update texture and position
-                    else{
+                    if(!newIconType.equals(iconType)){
                         updateMagickaBarIcon(i, newIconType, window);
                     }
                 }

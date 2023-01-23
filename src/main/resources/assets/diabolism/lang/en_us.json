@@ -1,8 +1,11 @@
 {
-  "item.diabolism.runic_powder": "Runic Powder",
+  "item.diabolism.rune_powder": "Rune Powder",
   "item.diabolism.basic_wand": "Basic Wand",
   "item.diabolism.volatile_mixture": "Volatile Mixture",
   "item.diabolism.mortar_and_pestle": "Mortar and Pestle",
+  "item.diabolism.totem_of_thunder": "Totem of Thunder",
+  "item.diabolism.volcanic_powder": "Volcanic Powder",
+  "item.diabolism.stone_polishing_powder": "Stone Polishing Powder",
 
   "item.minecraft.potion.effect.awakening_potion": "Potion Of Awakening",
   "item.minecraft.splash_potion.effect.awakening_potion": "Splash Potion Of Awakening",

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+        "item": "minecraft:polished_blackstone"
+    },
+    {
+        "item": "diabolism:stone_polishing_powder"
+    }
+  ],
+  "result": {
+    "item": "diabolism:powder_covered_polished_blackstone",
+    "count": 1
+  }
+}
