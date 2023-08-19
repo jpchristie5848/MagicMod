@@ -1,0 +1,59 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "magic_churner_turn": {
+      "animation_length": 3,
+      "bones": {
+        "rod": {
+          "rotation": {
+            "0.0": {
+              "vector": [0, 0, 0]
+            },
+            "0.25": {
+              "vector": [0, -90, 0]
+            },
+            "0.5": {
+              "vector": [0, -180, 0]
+            },
+            "0.75": {
+              "vector": [0, -270, 0]
+            },
+            "1.5": {
+              "vector": [0, -360, 0],
+              "easing": "easeOutQuint"
+            },
+            "2.25": {
+              "vector": [0, -270, 0],
+              "easing": "easeInQuint"
+            },
+            "3.0": {
+              "vector": [0, 0, 0],
+              "easing": "easeOutQuint"
+            }
+          }
+        }
+      }
+    },
+    "magic_churner_idle": {
+      "loop": true,
+      "animation_length": 3.25,
+      "bones": {
+        "rod": {
+          "position": {
+            "0.0": {
+              "vector": [0, 0, 0]
+            },
+            "1.5833": {
+              "vector": [0, -2, 0],
+              "easing": "easeInOutQuad"
+            },
+            "3.25": {
+              "vector": [0, 0, 0],
+              "easing": "easeInOutCubic"
+            }
+          }
+        }
+      }
+    }
+  }
+}

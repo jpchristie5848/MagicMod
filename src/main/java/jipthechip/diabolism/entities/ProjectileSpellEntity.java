@@ -3,7 +3,7 @@ package jipthechip.diabolism.entities;
 
 import jipthechip.diabolism.Utils.MathUtils;
 import jipthechip.diabolism.mixin.EntityAccessor;
-import jipthechip.diabolism.particle.DiabolismParticles;
+import jipthechip.diabolism.particle.ColoredSpellParticleFactory;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
@@ -12,8 +12,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -88,29 +86,7 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
 //                synchedWithClient = true;
 //            }
 
-            int LevelsHorizontal = (int) (2.0f * radius * 50.0f);
-            int LevelsVertical = (int) (2.0f * radius * 50.0f);
-
-            Box boundingBox = getBoundingBox();
-
-            double halfDeltaX = (boundingBox.maxX-boundingBox.minX)/2;
-            double halfDeltaY = (boundingBox.maxY-boundingBox.minY)/2;
-            double halfDeltaZ = (boundingBox.maxZ-boundingBox.minZ)/2;
-
-            Vec3d boundingBoxCenter = new Vec3d(boundingBox.maxX - halfDeltaX, boundingBox.maxY - halfDeltaY, boundingBox.maxZ - halfDeltaZ);
-
-            // spawn particles so entity resembles a sphere
-            for(int i = 0; i < LevelsVertical; i++){
-                for(int j = 0; j < LevelsHorizontal; j++){
-
-                    Vec3d position = MathUtils.getPointOnSphere(((float)i/(float)LevelsVertical)*180.0f-90.0f, ((float)j/(float)LevelsHorizontal)*360.0f, radius, boundingBoxCenter);
-
-                    PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) world).spawnParticles(player,
-                            DiabolismParticles.PROJECTILE_SPELL_PARTICLE, true, position.getX(), position.getY(), position.getZ(), 1,
-                            0, 0, 0, 0));
-
-                }
-            }
+            playParticles();
 
 
 //            for(int count = 0; count < 16; count++) {
@@ -123,6 +99,31 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
 //
 //                PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) world).spawnParticles(player, ParticleTypes.ELECTRIC_SPARK, true, x, y, z, 1, deltaX, deltaY, deltaZ, 0.1));
 //            }
+        }
+    }
+
+    private void playParticles() {
+        int LevelsHorizontal = (int) (2.0f * radius * 20.0f);
+        int LevelsVertical = (int) (2.0f * radius * 20.0f);
+
+        Box boundingBox = getBoundingBox();
+
+        double halfDeltaX = (boundingBox.maxX-boundingBox.minX)/2;
+        double halfDeltaY = (boundingBox.maxY-boundingBox.minY)/2;
+        double halfDeltaZ = (boundingBox.maxZ-boundingBox.minZ)/2;
+
+        Vec3d boundingBoxCenter = new Vec3d(boundingBox.maxX - halfDeltaX, boundingBox.maxY - halfDeltaY, boundingBox.maxZ - halfDeltaZ);
+
+        // spawn particles so entity resembles a sphere
+        for(int i = 0; i < LevelsVertical; i++){
+            for(int j = 0; j < LevelsHorizontal; j++){
+
+                Vec3d position = MathUtils.getPointOnSphere(((float)i/(float)LevelsVertical)*180.0f-90.0f, ((float)j/(float)LevelsHorizontal)*360.0f, radius, boundingBoxCenter);
+                PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) world).spawnParticles(player,
+                        ColoredSpellParticleFactory.createData(0xffff00, (int) (Math.random() * 25 + 10)), true, position.getX(), position.getY(), position.getZ(), 1,
+                        0, 0, 0, 0));
+
+            }
         }
     }
 

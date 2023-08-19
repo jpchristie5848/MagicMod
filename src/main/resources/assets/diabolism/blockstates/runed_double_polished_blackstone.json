@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "activated=false": { "model": "diabolism:block/runed_double_polished_blackstone" },
+    "activated=true": { "model": "diabolism:block/runed_double_polished_blackstone_activated"}
+  }
+}

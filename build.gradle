@@ -99,6 +99,7 @@ loom {
             vmArg("-Dfabric-api.datagen.output-dir=${file("src/main/generated")}")
         }
     }
+    accessWidenerPath = file("src/main/resources/diabolism.accesswidener")
 }
 assemble.dependsOn(runDatagen)
 

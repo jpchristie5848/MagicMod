@@ -3,6 +3,7 @@ package jipthechip.diabolism.recipe;
 import com.google.gson.JsonObject;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.ShapelessRecipe;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.Identifier;
 
 public class DamageDurabilityRecipeSerializer extends ShapelessRecipe.Serializer {
@@ -12,13 +13,13 @@ public class DamageDurabilityRecipeSerializer extends ShapelessRecipe.Serializer
     @Override
     public ShapelessRecipe read(Identifier id, JsonObject json){
         ShapelessRecipe recipe = super.read(id, json);
-        return new DamageDurabilityRecipe(recipe.getId(), recipe.getGroup(), recipe.getOutput(), recipe.getIngredients());
+        return new DamageDurabilityRecipe(recipe.getId(), recipe.getGroup(), recipe.getOutput(DynamicRegistryManager.EMPTY), recipe.getIngredients());
     }
 
     @Override
     public ShapelessRecipe read(Identifier id, PacketByteBuf buf){
         ShapelessRecipe recipe = super.read(id, buf);
-        return new DamageDurabilityRecipe(recipe.getId(), recipe.getGroup(), recipe.getOutput(), recipe.getIngredients());
+        return new DamageDurabilityRecipe(recipe.getId(), recipe.getGroup(), recipe.getOutput(DynamicRegistryManager.EMPTY), recipe.getIngredients());
     }
 
 }

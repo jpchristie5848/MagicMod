@@ -11,4 +11,5 @@ public class BasicWand extends Item {
     public BasicWand(Settings settings) {
         super(settings);
     }
+
 }

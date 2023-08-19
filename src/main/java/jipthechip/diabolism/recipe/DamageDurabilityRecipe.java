@@ -6,12 +6,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.ShapelessRecipe;
+import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 
 public class DamageDurabilityRecipe extends ShapelessRecipe {
     public DamageDurabilityRecipe(Identifier id, String group, ItemStack output, DefaultedList<Ingredient> input) {
-        super(id, group, output, input);
+        super(id, group, CraftingRecipeCategory.MISC, output, input);
     }
 
     public DefaultedList<ItemStack> getRemainder(CraftingInventory inv){

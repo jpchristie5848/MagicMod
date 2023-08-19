@@ -4,10 +4,12 @@ import jipthechip.diabolism.blocks.DiabolismBlocks;
 import jipthechip.diabolism.entities.DiabolismEntities;
 import jipthechip.diabolism.events.DiabolismEvents;
 import jipthechip.diabolism.items.DiabolismItems;
-import jipthechip.diabolism.items.potion.DiabolismPotions;
+import jipthechip.diabolism.potion.DiabolismPotions;
 import jipthechip.diabolism.packets.DiabolismPackets;
 import jipthechip.diabolism.particle.DiabolismParticles;
 import jipthechip.diabolism.recipe.DiabolismRecipes;
+import jipthechip.diabolism.sound.DiabolismSounds;
+
 import net.fabricmc.api.ModInitializer;
 
 public class Diabolism implements ModInitializer {
@@ -26,5 +28,6 @@ public class Diabolism implements ModInitializer {
         DiabolismPotions.registerPotions();
         DiabolismPotions.registerPotionRecipes();
         DiabolismParticles.registerParticles();
+        DiabolismSounds.registerSounds();
     }
 }

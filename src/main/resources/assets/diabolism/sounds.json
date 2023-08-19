@@ -1,0 +1,12 @@
+{
+  "churner_slosh": {
+    "sounds": [
+      "diabolism:churner_slosh"
+    ]
+  },
+  "magic_freeze": {
+    "sounds": [
+      "diabolism:magic_freeze_2"
+    ]
+  }
+}

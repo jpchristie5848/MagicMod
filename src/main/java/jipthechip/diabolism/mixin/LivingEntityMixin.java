@@ -78,7 +78,7 @@ public abstract class LivingEntityMixin extends Entity implements IMagicProperti
         this.setMagicShield(nbt.getInt("MagicShieldEntityId"));
         this.setAwakened(nbt.getBoolean("Awakened"));
         this.setMagicka(nbt.getInt("Magicka"));
-        System.out.println("Read magicka from nbt: "+nbt.getInt("Magicka"));
+        //System.out.println("Read magicka from nbt: "+nbt.getInt("Magicka"));
         this.setMagickaRegenRate(nbt.getFloat("MagickaRegenRate"));
         this.setMaxMagicka(nbt.getInt("MaxMagicka"));
     }

@@ -48,15 +48,15 @@ public class UIEvents {
             }
         });
 
-        ClientTickEvents.END_CLIENT_TICK.register((client -> {
-            if(HudMixin.getAdapter() == null) {
-                HudMixin.intializeAdapter();
-            }
-            if(HudMixin.getAdapter() != null && adapter == null){
-                adapter = HudMixin.getAdapter();
-            }
-            updateMagickaBar(client, client.getWindow());
-        }));
+//        ClientTickEvents.END_CLIENT_TICK.register((client -> {
+//            if(HudMixin.getAdapter() == null) {
+//                //HudMixin.intializeAdapter();
+//            }
+//            if(HudMixin.getAdapter() != null && adapter == null){
+//                //adapter = HudMixin.getAdapter();
+//            }
+//            updateMagickaBar(client, client.getWindow());
+//        }));
     }
 
     private static void updateMagickaBar(MinecraftClient client, Window window){

@@ -2,6 +2,10 @@ package jipthechip.diabolism.Utils;
 
 import net.minecraft.util.math.Vec3d;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static java.lang.Math.sin;
 import static net.minecraft.util.math.MathHelper.cos;
 
@@ -43,6 +47,7 @@ public class MathUtils {
         return perpRotVec.add(parVec);
     }
 
+    // rotates vector v about vector k by the specified number of degrees
     public static Vec3d rodriguesRotation(Vec3d v, Vec3d k, double degrees){
         Vec3d v_norm = v.normalize();
         Vec3d k_norm = k.normalize();
@@ -61,5 +66,34 @@ public class MathUtils {
         double z = (lookVector.x * -1) / lookVector.z;
 
         return new Vec3d(x, y ,z).normalize();
+    }
+
+    public static int getNthGreatestValue(float[] arr, int n){
+
+        List<Integer> indicesToSkip = new ArrayList<>();
+
+        int maxIndex = -1;
+        for(int i = 0; i < n; i++){
+            maxIndex = -1;
+            for(int j = 0; j < arr.length; j++) {
+                if(!indicesToSkip.contains(j) && (maxIndex == -1 || arr[j] > arr[maxIndex])){
+                    maxIndex = j;
+                }
+            }
+            indicesToSkip.add(maxIndex);
+        }
+        return maxIndex;
+    }
+
+    public static float[] removeNthElementFromArray(float[] arr, int n){
+        float[] newArr = new float[arr.length-1];
+        int k = 0;
+        for(int i = 0; i < arr.length; i++){
+            if(i != n){
+                newArr[k] = arr[i];
+                k++;
+            }
+        }
+        return newArr;
     }
 }

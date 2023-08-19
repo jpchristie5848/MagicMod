@@ -1,61 +1,125 @@
 package jipthechip.diabolism.Utils;
 
-import jipthechip.diabolism.blocks.AbstractRunedBlock;
-import jipthechip.diabolism.entities.blockentities.AltarBlockEntity;
-import jipthechip.diabolism.entities.blockentities.AltarComponentBlockEntity;
-import jipthechip.diabolism.entities.blockentities.PillarBlockEntity;
-import jipthechip.diabolism.entities.blockentities.RunedBlockEntity;
+import jipthechip.diabolism.entities.blockentities.AbstractFluidContainer;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 public class BlockHelpers {
 
-    public static boolean unlinkBlockFromAltar(BlockPos pos, BlockPos altarPos, BlockState state, World world, boolean isPillar){
-        AltarComponentBlockEntity blockEntity = (AltarComponentBlockEntity) world.getBlockEntity(pos);
-        if(blockEntity != null && blockEntity.getLinkedAltar() != null && blockEntity.getLinkedAltar().equals(altarPos)){
-            BlockState newState = state;
-            if(!isPillar){
-                newState = state.with(AbstractRunedBlock.ACTIVATED, false);
-                world.setBlockState(pos, newState);
-            }else{
-                ((PillarBlockEntity)blockEntity).setDirectionFromAltar(null);
-            }
-            blockEntity.setLinkedAltar(null);
-            blockEntity.markDirty();
-            world.updateListeners(pos, state, newState, Block.NOTIFY_LISTENERS);
-            //System.out.println("successfully unlinked block "+pos);
-            return true;
-        }
-        //System.out.println("runed blockentity is null: "+(blockEntity == null));
-        //if(blockEntity != null && blockEntity.getLinkedAltar() != null) System.out.println("runed blockentity altar: "+blockEntity.getLinkedAltar().toShortString()+" altar pos: "+altarPos.toShortString());
-        //else System.out.println("runed blockentity can't be unlinked because it or its linked altar is null");
-        return false;
-    }
+    public static List<BlockPos> PipeBFS(World world, BlockPos start, BlockPos pumpPos, TargetCondition targetCondition, List<BlockPos> ignoredTargets, Block... pipeBlocks){
 
+        List<Block> pipeBlocklist = Arrays.stream(pipeBlocks).toList();
+        List<BlockPos> path = new ArrayList<>();
 
-    public static boolean linkBlockToAltar(BlockPos pos, BlockPos altarPos, World world){
-        return linkBlockToAltar(pos, altarPos, world, null);
-    }
+        HashMap<BlockPos, BlockPos> parents = new HashMap<>();
+        Deque<BlockPos> queue = new ArrayDeque<>();
 
-    public static boolean linkBlockToAltar(BlockPos pos, BlockPos altarPos, World world, Vec3i directionFromAltar){
-        AltarComponentBlockEntity blockEntity = (AltarComponentBlockEntity) world.getBlockEntity(pos);
-        if(blockEntity != null){
-            BlockState state = world.getBlockState(pos);
-            if(blockEntity.getLinkedAltar() == null) {
-                AltarBlockEntity altarBlockEntity = (AltarBlockEntity) world.getBlockEntity(altarPos);
-                if (altarBlockEntity != null) {
-                    blockEntity.setLinkedAltar(altarPos);
+        queue.push(start);
+        while (!queue.isEmpty()){
+
+//            System.out.print("inside bfs: ");
+//            for(BlockPos qpos: queue){
+//                System.out.print(qpos.toShortString()+";");
+//            }
+//            System.out.println();
+            BlockPos currentPos = queue.removeFirst();
+
+//            System.out.println("current pos: "+currentPos.toShortString()+"---------------");
+            // check all 4 directions for a path
+            for(Direction direction : Direction.values()){
+
+                BlockPos newPos = currentPos.add(direction.getVector());
+
+                if(!queue.contains(newPos) && !newPos.equals(start)){
+                    //System.out.println("checking "+newPos.toShortString());
+
+                    Block block = world.getBlockState(newPos).getBlock();
+
+                    if(!ignoredTargets.contains(newPos) && targetCondition.evaluate(world.getBlockEntity(newPos))){
+                        path.add(newPos);
+                        parents.put(newPos, currentPos);
+                        do{
+                            path.add(parents.get(path.get(path.size()-1)));
+                        }while(path.get(path.size()-1) != start);
+
+                        Collections.reverse(path);
+
+                        if(path.get(1).equals(pumpPos))
+                            return path;
+                        else{ // if the path is going through a different pump other than the one that called this method, it is invalid
+                            path.clear();
+                        }
+                    }
+                    else if(pipeBlocklist.contains(block) && !parents.containsKey(newPos)){
+                        queue.addLast(newPos);
+                        parents.put(newPos, currentPos);
+                    }
                 }
             }
-            if(directionFromAltar != null) ((PillarBlockEntity)blockEntity).setDirectionFromAltar(directionFromAltar);
-            blockEntity.markDirty();
-            world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
-            return blockEntity.getLinkedAltar().equals(altarPos);
         }
-        return false;
+//        System.out.println("no path found");
+//        System.out.println();
+        return path;
+    }
+
+    public static List<BlockPos> BlockBFS(World world, Block pathBlock, Block targetBlock, BlockPos start, @Nullable TargetCondition targetCondition){
+
+        if(world.getBlockState(start).getBlock() == targetBlock){
+            return Collections.singletonList(start);
+        }
+
+        List<BlockPos> path = new ArrayList<>();
+
+        HashMap<BlockPos, BlockPos> parents = new HashMap<>();
+        Deque<BlockPos> queue = new ArrayDeque<>();
+
+        queue.push(start);
+        while (!queue.isEmpty()){
+
+//            System.out.print("inside bfs: ");
+//            for(BlockPos qpos: queue){
+//                System.out.print(qpos.toShortString()+";");
+//            }
+//            System.out.println();
+            BlockPos currentPos = queue.removeFirst();
+
+//            System.out.println("current pos: "+currentPos.toShortString()+"---------------");
+            // check all 4 directions for a path
+            for(Direction direction : Direction.Type.HORIZONTAL){
+
+                BlockPos newPos = currentPos.add(direction.getVector());
+
+                if(!queue.contains(newPos)){
+                    //System.out.println("checking "+newPos.toShortString());
+
+                    Block block = world.getBlockState(newPos).getBlock();
+                    Block downBlock = world.getBlockState(newPos.down()).getBlock();
+
+                    if(block.equals(targetBlock) && (targetCondition == null || targetCondition.evaluate(world.getBlockEntity(newPos)))){
+                        path.add(newPos);
+                        parents.put(newPos, currentPos);
+                        do{
+                            path.add(parents.get(path.get(path.size()-1)));
+                        }while(path.get(path.size()-1) != start);
+
+                        Collections.reverse(path);
+                        return path;
+                    }
+                    else if(block.equals(Blocks.AIR) && downBlock.equals(pathBlock) && !(parents.containsKey(newPos) || newPos == start)){
+                        queue.addLast(newPos);
+                        parents.put(newPos, currentPos);
+                    }
+                }
+            }
+        }
+//        System.out.println("no path found");
+//        System.out.println();
+        return path;
     }
 }

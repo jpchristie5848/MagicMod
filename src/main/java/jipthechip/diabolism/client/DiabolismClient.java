@@ -2,9 +2,14 @@ package jipthechip.diabolism.client;
 
 import jipthechip.diabolism.blocks.DiabolismBlocks;
 import jipthechip.diabolism.entities.DiabolismEntities;
+import jipthechip.diabolism.entities.blockentities.geo.MagicChurnerBlockRenderer;
+import jipthechip.diabolism.entities.blockentities.geo.FluidPumpBlockRenderer;
+import jipthechip.diabolism.entities.blockentities.geo.MagicFermenterBlockRenderer;
 import jipthechip.diabolism.items.DiabolismItems;
 import jipthechip.diabolism.particle.DiabolismParticles;
+import jipthechip.diabolism.sound.DiabolismSounds;
 import net.fabricmc.api.ClientModInitializer;
+import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 
 @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class DiabolismClient implements ClientModInitializer {
@@ -15,6 +20,15 @@ public class DiabolismClient implements ClientModInitializer {
         DiabolismItems.initializeClient();
         DiabolismEntities.registerEntityRenderers();
         DiabolismParticles.registerParticlesClient();
+
+
+        //ModelLoadingRegistry.INSTANCE.registerResourceProvider(rm->new AltarFluidModelProvider());
+        //GeoItemRenderer.registerItemRenderer(DiabolismItems.MAGIC_CHURNER_BLOCKITEM, new MagicChurnerItemRenderer());
+        BlockEntityRendererFactories.register(DiabolismEntities.MAGIC_CHURNER_BLOCKENTITY, MagicChurnerBlockRenderer::new);
+        BlockEntityRendererFactories.register(DiabolismEntities.FLUID_PUMP_BLOCKENTITY, FluidPumpBlockRenderer::new);
+        BlockEntityRendererFactories.register(DiabolismEntities.MAGIC_FERMENTER_BLOCKENTITY, MagicFermenterBlockRenderer::new);
+        //BlockEntityRendererRegistry.register(DiabolismEntities.MAGIC_CHURNER_BLOCKENTITY, (BlockEntityRendererFactory.Context rendererDispatcherIn) -> new MagicChurnerBlockRenderer());
+
     }
 
 

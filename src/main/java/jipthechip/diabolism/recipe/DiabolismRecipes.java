@@ -1,12 +1,13 @@
 package jipthechip.diabolism.recipe;
 
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 public class DiabolismRecipes {
 
 
     public static void registerRecipes(){
-        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier("diabolism", "damage_durability"), DamageDurabilityRecipeSerializer.INSTANCE);
+        Registry.register(Registries.RECIPE_SERIALIZER, new Identifier("diabolism", "damage_durability"), DamageDurabilityRecipeSerializer.INSTANCE);
     }
 }

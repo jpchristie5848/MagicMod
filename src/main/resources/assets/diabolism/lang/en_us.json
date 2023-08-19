@@ -6,6 +6,10 @@
   "item.diabolism.totem_of_thunder": "Totem of Thunder",
   "item.diabolism.volcanic_powder": "Volcanic Powder",
   "item.diabolism.stone_polishing_powder": "Stone Polishing Powder",
+  "item.diabolism.solar_shard": "Solar Shard",
+  "item.diabolism.star_shard": "Star Shard",
+  "item.diabolism.brew_fluid_bucket": "Brew Fluid Bucket",
+  "item.diabolism.mystical_yeast": "Mystical Yeast",
 
   "item.minecraft.potion.effect.awakening_potion": "Potion Of Awakening",
   "item.minecraft.splash_potion.effect.awakening_potion": "Splash Potion Of Awakening",
@@ -23,6 +27,21 @@
   "block.diabolism.conductive_pillar": "Conductive Pillar",
   "block.diabolism.mossy_pillar": "Mossy Pillar",
   "block.diabolism.carved_pillar": "Carved Pillar",
+  "block.diabolism.starter_crystal": "Starter Crystal",
+  "block.diabolism.crystal_altar": "Crystal Altar",
+  "block.diabolism.powder_covered_polished_blackstone" : "Powder Covered Polished Blackstone",
+  "block.diabolism.double_polished_blackstone" : "Double Polished Blackstone",
+  "block.diabolism.runed_double_polished_blackstone" : "Runed Double Polished Blackstone",
+  "block.diabolism.starlight_collector": "Starlight Collector",
+  "block.diabolism.sunlight_collector": "Sunlight Collector",
+  "block.diabolism.magic_churner": "Magic Churner",
+  "block.diabolism.fluid_pipe": "Fluid Pipe",
+  "block.diabolism.fluid_pump": "Fluid Pump",
+  "block.diabolism.magic_fermenter": "Magic Fermenter",
 
-  "effect.diabolism.awakening_status_effect": "Awakening"
+  "effect.diabolism.awakening_status_effect": "Awakening",
+  "effect.diabolism.wet_status_effect": "Wet",
+  "effect.diabolism.chilly_status_effect": "Chilly",
+  "effect.diabolism.frozen_status_effect": "Frozen",
+  "effect.diabolism.magic_harm_status_effect": "Magic Harm"
 }

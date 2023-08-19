@@ -8,6 +8,7 @@
     "BrewingRecipeRegistryAccessor",
     "EntityAccessor",
     "EntityMixin",
+    "GoalSelectorAccessor",
     "HudMixin",
     "LightningEntityMixin",
     "LivingEntityMixin",
@@ -15,6 +16,11 @@
     "ProjectileUtilMixin"
   ],
   "client": [
+    "ChatHudAccessor",
+    "DrawStatusEffectsMixin",
+    "LivingEntityRendererMixin",
+    "ParticleRenderFix",
+    "SpriteAwareParticlesMixin"
   ],
   "injectors": {
     "defaultRequire": 1
