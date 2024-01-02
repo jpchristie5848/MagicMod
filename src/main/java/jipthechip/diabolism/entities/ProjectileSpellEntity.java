@@ -1,17 +1,26 @@
 package jipthechip.diabolism.entities;
 
 
+import jipthechip.diabolism.Utils.DataUtils;
 import jipthechip.diabolism.Utils.MathUtils;
+import jipthechip.diabolism.data.MagicElement;
+import jipthechip.diabolism.data.Spell;
+import jipthechip.diabolism.data.StatusEffectInstanceContainer;
 import jipthechip.diabolism.mixin.EntityAccessor;
 import jipthechip.diabolism.particle.ColoredSpellParticleFactory;
+import jipthechip.diabolism.potion.AbstractElementalStatusEffect;
+import jipthechip.diabolism.potion.ClientSyncedStatusEffect;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -21,30 +30,34 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class ProjectileSpellEntity extends PersistentProjectileEntity {
 
     private float radius;
     private Vec3d velocity;
+
+    private List<StatusEffectInstance> spellEffects;
 
     private void init(){
         setNoGravity(true);
         setDamage(10.0);
 
         //System.out.println("CONSTRUCTOR setting dimensions to: "+EntityDimensions.fixed(radius, radius));
-        ((EntityAccessor)this).setDimensions(EntityDimensions.fixed(radius*1.2f, radius*1.2f));
+        ((EntityAccessor)this).setDimensions(EntityDimensions.fixed(getRadius()*1.2f, getRadius()*1.2f));
     }
     public ProjectileSpellEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
         super(entityType, world);
         init();
     }
 
-    public ProjectileSpellEntity(EntityType<? extends PersistentProjectileEntity> type, double x, double y, double z, World world, Vec3d velocity, float radius) {
+    public ProjectileSpellEntity(EntityType<? extends PersistentProjectileEntity> type, double x, double y, double z, World world, Vec3d velocity, StatusEffectInstance... spellEffects) {
         super(type, x, y, z, world);
-        init();
-        if(!getEntityWorld().isClient) {
-            this.radius = radius;
-        }
+        this.spellEffects = Arrays.stream(spellEffects).toList();
         this.velocity = velocity;
+        init();
     }
 
     public ProjectileSpellEntity(EntityType<? extends PersistentProjectileEntity> type, LivingEntity owner, World world) {
@@ -52,18 +65,36 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
         init();
     }
 
+    @Override
+    public void readNbt(NbtCompound nbt) {
+        int NumEffects = nbt.getInt("NumEffects");
+        spellEffects = new ArrayList<>();
+        for(int i = 0; i < NumEffects; i++){
+            spellEffects.add(((StatusEffectInstanceContainer)DataUtils.DeserializeFromString(nbt.getString("SpellEffect"+i))).createInstance());
+        }
+    }
+
+    @Override
+    public NbtCompound writeNbt(NbtCompound nbt) {
+        nbt.putInt("NumEffects", spellEffects.size());
+        for(int i = 0; i < spellEffects.size(); i++){
+            nbt.putString("SpellEffect"+i,DataUtils.SerializeToString(new StatusEffectInstanceContainer(spellEffects.get(i))));
+        }
+        return super.writeNbt(nbt);
+    }
+
     public void tick(){
 
 //        System.out.println("Bounding box size in tick: "+MathUtils.distanceBetween2Points(getBoundingBox().minX, getBoundingBox().minY, getBoundingBox().minZ, getBoundingBox().maxX, getBoundingBox().maxY, getBoundingBox().maxZ));
 
-        ((EntityAccessor)this).setDimensions(EntityDimensions.fixed(radius*1.2f, radius*1.2f));
+        ((EntityAccessor)this).setDimensions(EntityDimensions.fixed(getRadius()*1.2f, getRadius()*1.2f));
         //System.out.println("before super tick: "+this.getBoundingBox());
 
         super.tick();
 
         //System.out.println("after super tick: "+this.getBoundingBox());
 
-        if(!world.isClient()) {
+        if(!getWorld().isClient()) {
 
             if(this.isTouchingWater() || this.isInLava()){
                 this.kill();
@@ -103,6 +134,10 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
     }
 
     private void playParticles() {
+        System.out.println("start of playParticles");
+
+        float radius = getRadius();
+
         int LevelsHorizontal = (int) (2.0f * radius * 20.0f);
         int LevelsVertical = (int) (2.0f * radius * 20.0f);
 
@@ -118,13 +153,62 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
         for(int i = 0; i < LevelsVertical; i++){
             for(int j = 0; j < LevelsHorizontal; j++){
 
+                System.out.println("spawning particle");
                 Vec3d position = MathUtils.getPointOnSphere(((float)i/(float)LevelsVertical)*180.0f-90.0f, ((float)j/(float)LevelsHorizontal)*360.0f, radius, boundingBoxCenter);
-                PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) world).spawnParticles(player,
-                        ColoredSpellParticleFactory.createData(0xffff00, (int) (Math.random() * 25 + 10)), true, position.getX(), position.getY(), position.getZ(), 1,
+                PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) getWorld()).spawnParticles(player,
+                        ColoredSpellParticleFactory.createData(getParticleColor(), (int) (Math.random() * 25 + 10)), true, position.getX(), position.getY(), position.getZ(), 1,
                         0, 0, 0, 0));
 
             }
         }
+    }
+
+    private int getParticleColor(){
+
+        List<Float> probabilities = new ArrayList<>();
+        float probabilitiesTotal = 0;
+
+        for(StatusEffectInstance instance : spellEffects){
+            float probability = (instance.getAmplifier() + ((float)instance.getDuration() / 6))/2;
+            probabilities.add(probability);
+            probabilitiesTotal += probability;
+        }
+
+        for (int i = 0; i < probabilities.size(); i++){
+            probabilities.set(i, probabilities.get(i)/probabilitiesTotal);
+        }
+
+        double random = Math.random();
+        float sum = 0;
+        int chosenEffectIndex = 0;
+
+        for (int i = 0; i < probabilities.size(); i++){
+            sum += probabilities.get(i);
+            if(random < sum){
+                chosenEffectIndex = i;
+                break;
+            }
+        }
+
+        MagicElement effectElement = ((AbstractElementalStatusEffect)spellEffects.get(chosenEffectIndex).getEffectType()).getElement();
+        // get color for chosen spell effect
+        return Spell.ELEMENT_COLORS[effectElement.ordinal()];
+
+    }
+
+    private float getRadius(){
+
+        if(spellEffects == null){
+            return 0.2f;
+        }
+
+        float radius = 0;
+
+        for(StatusEffectInstance instance : spellEffects){
+            float effectTotal = (instance.getAmplifier() + ((float)instance.getDuration() / 6))/2;
+            radius += (effectTotal / 100)/2;
+        }
+        return Math.max(0.1f, radius);
     }
 
     @Override
@@ -142,13 +226,21 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
     protected void onEntityHit(EntityHitResult entityHitResult) {
         super.onEntityHit(entityHitResult);
 
-        if(entityHitResult.getEntity() instanceof LivingEntity target)
+
+        if(entityHitResult.getEntity() instanceof LivingEntity target){
             target.timeUntilRegen = 0;
+            if(spellEffects != null && !spellEffects.isEmpty()){
+                for(StatusEffectInstance instance : spellEffects){
+                    target.addStatusEffect(instance);
+                }
+            }
+        }
+
     }
 
     @Override
     public void onPlayerCollision(PlayerEntity player) {
-        if(!world.isClient && (inGround || isNoClip()) && shake <= 0)
+        if(!getWorld().isClient && (inGround || isNoClip()) && shake <= 0)
             discard();
     }
 
@@ -164,7 +256,7 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
 
     @Override
     public Box calculateBoundingBox() {
-        float f = this.radius*0.6f;
+        float f = this.getRadius()*0.6f;
         return new Box(this.getX() - (double)f, this.getY()-f, this.getZ() - (double)f, this.getX() + (double)f, this.getY() + f, this.getZ() + (double)f);
     }
 

@@ -8,5 +8,25 @@
     "sounds": [
       "diabolism:magic_freeze_2"
     ]
+  },
+  "paralysis_zap": {
+    "sounds": [
+      "diabolism:paralysis_zap"
+    ]
+  },
+  "life_spell": {
+    "sounds": [
+      "diabolism:life_spell"
+    ]
+  },
+  "death_spell": {
+    "sounds": [
+      "diabolism:death_spell"
+    ]
+  },
+  "squidward": {
+    "sounds": [
+      "diabolism:squidward"
+    ]
   }
 }

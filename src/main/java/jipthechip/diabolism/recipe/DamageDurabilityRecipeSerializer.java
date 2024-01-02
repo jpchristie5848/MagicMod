@@ -10,16 +10,16 @@ public class DamageDurabilityRecipeSerializer extends ShapelessRecipe.Serializer
 
     public static final DamageDurabilityRecipeSerializer INSTANCE = new DamageDurabilityRecipeSerializer();
 
-    @Override
-    public ShapelessRecipe read(Identifier id, JsonObject json){
-        ShapelessRecipe recipe = super.read(id, json);
-        return new DamageDurabilityRecipe(recipe.getId(), recipe.getGroup(), recipe.getOutput(DynamicRegistryManager.EMPTY), recipe.getIngredients());
-    }
+//    @Override
+//    public ShapelessRecipe read(JsonObject json){
+//        ShapelessRecipe recipe = super.read(json);
+//        return new DamageDurabilityRecipe(recipe.getGroup(), recipe.getResult(DynamicRegistryManager.EMPTY), recipe.getIngredients());
+//    }
 
     @Override
-    public ShapelessRecipe read(Identifier id, PacketByteBuf buf){
-        ShapelessRecipe recipe = super.read(id, buf);
-        return new DamageDurabilityRecipe(recipe.getId(), recipe.getGroup(), recipe.getOutput(DynamicRegistryManager.EMPTY), recipe.getIngredients());
+    public ShapelessRecipe read(PacketByteBuf buf){
+        ShapelessRecipe recipe = super.read(buf);
+        return new DamageDurabilityRecipe(recipe.getGroup(), recipe.getResult(DynamicRegistryManager.EMPTY), recipe.getIngredients());
     }
 
 }

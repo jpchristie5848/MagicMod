@@ -32,6 +32,7 @@ import software.bernie.geckolib.util.RenderUtils;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class FluidPump extends AbstractFluidContainer {
@@ -43,8 +44,13 @@ public class FluidPump extends AbstractFluidContainer {
     boolean isActive = false;
 
     private final TargetCondition targetCondition = (blockEntity) -> {
-        return blockEntity instanceof AbstractFluidContainer container && !(blockEntity instanceof FluidPump || blockEntity instanceof FluidPipe);
+
+        return (blockEntity instanceof AbstractFluidContainer &&
+                !(blockEntity instanceof FluidPump || blockEntity instanceof FluidPipe)
+                /*!(blockEntity instanceof MagicFermenter fermenter && fermenter.isFermenting()))*/
+                || blockEntity instanceof AbstractMagickaConsumer consumer);
     };
+
 
     private static final RawAnimation PUMP_NS = RawAnimation.begin().thenPlay("pipe_pump_animation_northsouth");
     private static final RawAnimation PUMP_EW = RawAnimation.begin().thenLoop("pipe_pump_animation_eastwest");
@@ -52,7 +58,7 @@ public class FluidPump extends AbstractFluidContainer {
     private AnimatableInstanceCache instanceCache = GeckoLibUtil.createInstanceCache(this);
 
     public FluidPump(BlockPos pos, BlockState state) {
-        super(DiabolismEntities.FLUID_PUMP_BLOCKENTITY, pos, state,50);
+        super(DiabolismEntities.FLUID_PUMP_BLOCKENTITY, pos, state,50, false);
     }
 
     public static void ticker(World world, BlockPos pos, BlockState state, FluidPump be) {
@@ -71,7 +77,7 @@ public class FluidPump extends AbstractFluidContainer {
             BlockPos pumpFromPos = getPos().add(state.get(FluidPumpBlock.PUMP_FROM_DIRECTION).getVector());
             BlockEntity pumpFromBlockEntity = world.getBlockEntity(pumpFromPos);
 
-            System.out.println("target condition: "+targetCondition.evaluate(pumpFromBlockEntity));
+            //System.out.println("target condition on pump from: "+targetCondition.evaluate(pumpFromBlockEntity));
 
             if(targetCondition.evaluate(pumpFromBlockEntity)){ // check if the container being pumped from is a fluid container that is NOT a pipe or pump
 
@@ -87,27 +93,29 @@ public class FluidPump extends AbstractFluidContainer {
                     // search for a path to the closest available fluid container
                     path = BlockHelpers.PipeBFS(world, pumpFromPos, getPos(), targetCondition, ignoredTargets, DiabolismBlocks.FLUID_PIPE, DiabolismBlocks.FLUID_PUMP);
 
-//                    System.out.println("pump pos: "+getPos());
-//                    System.out.println("path contains pump pos: "+path.contains(getPos()));
-//                    System.out.println("path "+pathCounter+" start");
-//                    System.out.println("----------------");
-//                    for (BlockPos bpos : path){
-//                        System.out.println(bpos);
-//                    }
-
-                    System.out.println("path is empty: "+path.isEmpty());
-                    System.out.println("start fluid transfer through path ------------------------");
                     for(int i = path.size()-2; i >= 0; i--){ // sequentially transfer fluids from the current container to the next, starting with the second to last in the path and going backwards
                         BlockEntity blockEntity1 = world.getBlockEntity(path.get(i));
                         BlockEntity blockEntity2 = world.getBlockEntity(path.get(i+1));
 
+                        // transferring into other fluid container
                         if(blockEntity1 instanceof AbstractFluidContainer container1 && blockEntity2 instanceof AbstractFluidContainer container2){
 
                             boolean transferSuccess = container1.tryFluidTransfer(container2, container1.getFluidAmount()); // attempt to transfer, and record whether it was able to move any fluid
                             if(transferSuccess) successfulPumpAchieved = true;
+
+                        // transferring into magicka consumer
+                        }else if(blockEntity1 instanceof AbstractFluidContainer container && blockEntity2 instanceof AbstractMagickaConsumer consumer){
+
+                            System.out.println("fluid in pump tick: "+container.getFluid());
+
+                            int amountToRemove = consumer.addFluid(container.getFluid(), container.getFluidAmount());
+                            if(amountToRemove > 0) {
+                                successfulPumpAchieved = true;
+                                container.removeFluid(amountToRemove);
+                                container.syncWithClient();
+                            }
                         }
                     }
-                    System.out.println();
                     if(!path.isEmpty()){
                         ignoredTargets.add(path.get(path.size()-1));
                     }

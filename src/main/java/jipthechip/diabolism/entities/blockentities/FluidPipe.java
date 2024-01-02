@@ -13,6 +13,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -20,7 +21,7 @@ import java.util.Arrays;
 public class FluidPipe extends AbstractFluidContainer{
 
     public FluidPipe(BlockPos pos, BlockState state) {
-        super(DiabolismEntities.FLUID_PIPE_BLOCKENTITY, pos, state, 50);
+        super(DiabolismEntities.FLUID_PIPE_BLOCKENTITY, pos, state, 50, false);
     }
 
     @Override

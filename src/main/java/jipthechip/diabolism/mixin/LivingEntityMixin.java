@@ -1,30 +1,47 @@
 package jipthechip.diabolism.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import jipthechip.diabolism.Utils.IMagicProperties;
 import jipthechip.diabolism.Utils.MathUtils;
 import jipthechip.diabolism.entities.DiabolismEntities;
 import jipthechip.diabolism.entities.ShieldSpellEntity;
 import jipthechip.diabolism.packets.DiabolismPackets;
+import jipthechip.diabolism.potion.DiabolismEffects;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import java.util.Objects;
+
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements IMagicProperties {
+
+    @Shadow public abstract boolean hasStatusEffect(StatusEffect effect);
+
+    @Shadow @Nullable public abstract DamageSource getRecentDamageSource();
+
+    @Shadow @Nullable public abstract StatusEffectInstance getStatusEffect(StatusEffect effect);
 
     private static final TrackedData<Integer> MagicShieldEntityId = DataTracker.registerData(LivingEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<Boolean> Awakened = DataTracker.registerData(LivingEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -39,6 +56,29 @@ public abstract class LivingEntityMixin extends Entity implements IMagicProperti
 
     public LivingEntityMixin(EntityType<?> type, World world) {
         super(type, world);
+    }
+
+    @ModifyVariable(method="damage", at = @At("HEAD"), ordinal = 0, argsOnly = true)
+    private float diabolism$damage(float damageAmount, @Local(ordinal = 0) DamageSource source){
+
+        System.out.println(source.getType());
+
+        if(this.hasStatusEffect(DiabolismEffects.ELEMENTAL.get("brokenbones")) && isPhysicalDamageSource(source)){
+            StatusEffectInstance instance = this.getStatusEffect(DiabolismEffects.ELEMENTAL.get("brokenbones"));
+            float amplifier = instance == null ? 0 : instance.getAmplifier();
+            return damageAmount * (1.0f + ((amplifier/100) * 3.0f));
+        }
+        return damageAmount;
+    }
+
+    private boolean isPhysicalDamageSource(DamageSource source){
+        return source.isIn(DamageTypeTags.IS_EXPLOSION) || source.isIn(DamageTypeTags.IS_FALL) || source.isIn(DamageTypeTags.IS_PROJECTILE)
+                || source.equals(this.getDamageSources().cramming())
+                || (Objects.equals(source.getType().msgId(), "fallingBlock"))
+                || source.equals(this.getDamageSources().cactus())
+                || (Objects.equals(source.getType().msgId(), "mob"))
+                || (Objects.equals(source.getType().msgId(), "anvil"))
+                || (Objects.equals(source.getType().msgId(), "player"));
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -107,7 +147,7 @@ public abstract class LivingEntityMixin extends Entity implements IMagicProperti
         killMagicShield();
     }
     private void createMagicShield(){
-        ShieldSpellEntity shieldSpellEntity = new ShieldSpellEntity(DiabolismEntities.SHIELD_SPELL, world);
+        ShieldSpellEntity shieldSpellEntity = new ShieldSpellEntity(DiabolismEntities.SHIELD_SPELL, getWorld());
 
         shieldSpellEntity.setPlayerEntityId(getId());
         setMagicShield(shieldSpellEntity.getId());
@@ -116,13 +156,13 @@ public abstract class LivingEntityMixin extends Entity implements IMagicProperti
 
         shieldSpellEntity.setPos(getPos().x+lookVector.x, getPos().y+lookVector.y+1, getPos().z+lookVector.z);
 
-        world.spawnEntity(shieldSpellEntity);
+        getWorld().spawnEntity(shieldSpellEntity);
         System.out.println("Spawned magic shield entity with  id: "+shieldSpellEntity.getId());
     }
     private void killMagicShield(){
         int magicShieldEntityId = getMagicShield();
         if(magicShieldEntityId != -1){
-            ShieldSpellEntity shieldSpellEntity = (ShieldSpellEntity) world.getEntityById(magicShieldEntityId);
+            ShieldSpellEntity shieldSpellEntity = (ShieldSpellEntity) getWorld().getEntityById(magicShieldEntityId);
             if(shieldSpellEntity != null){
                 shieldSpellEntity.kill();
                 PacketByteBuf buf = PacketByteBufs.create();

@@ -12,7 +12,9 @@
     "HudMixin",
     "LightningEntityMixin",
     "LivingEntityMixin",
+    "LivingEntityStatusEffectMixin",
     "PersistentProjectileEntityMixin",
+    "PlayerHungerMixin",
     "ProjectileUtilMixin"
   ],
   "client": [
@@ -20,7 +22,10 @@
     "DrawStatusEffectsMixin",
     "LivingEntityRendererMixin",
     "ParticleRenderFix",
-    "SpriteAwareParticlesMixin"
+    "PlayerEntityModelMixin",
+    "SpriteAccessor",
+    "SpriteAwareParticlesMixin",
+    "SpriteContentsAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

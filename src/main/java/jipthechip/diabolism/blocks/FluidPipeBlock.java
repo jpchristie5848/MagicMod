@@ -59,6 +59,6 @@ public class FluidPipeBlock extends AbstractOmniDirectionalBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, DiabolismEntities.FLUID_PIPE_BLOCKENTITY, FluidPipe::ticker);
+        return validateTicker(type, DiabolismEntities.FLUID_PIPE_BLOCKENTITY, FluidPipe::ticker);
     }
 }

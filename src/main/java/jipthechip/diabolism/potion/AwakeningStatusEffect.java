@@ -16,7 +16,7 @@ import net.minecraft.text.LiteralTextContent;
 import net.minecraft.text.MutableText;
 import net.minecraft.util.math.Vec3d;
 
-public class AwakeningStatusEffect extends StatusEffect {
+public class AwakeningStatusEffect extends ClientSyncedStatusEffect {
 
     protected AwakeningStatusEffect(StatusEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
@@ -40,22 +40,25 @@ public class AwakeningStatusEffect extends StatusEffect {
     }
 
     @Override
-    public void onApplied(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        super.onApplied(entity, attributes, amplifier);
+    public void onApplied(LivingEntity entity, int amplifier) {
+        super.onApplied(entity, amplifier);
         if(entity instanceof PlayerEntity playerEntity){
             playerEntity.sendMessage(MutableText.of(new LiteralTextContent("You feel like something's watching you.")));
         }
     }
 
     @Override
-    public void onRemoved(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        super.onRemoved(entity, attributes, amplifier);
-        if(!((IMagicProperties)entity).isAwakened() && entity instanceof PlayerEntity playerEntity && entity.getHealth() > 0.0f){
-            ((IMagicProperties)playerEntity).setAwakened(true);
-            ((IMagicProperties)playerEntity).setMaxMagicka(20);
-            ((IMagicProperties)playerEntity).setMagickaRegenRate(1.0f);
-            playerEntity.sendMessage(MutableText.of(new LiteralTextContent("The visions have ceased. You're safe now, but you feel different.")));
-        }
+    public void onRemoved(AttributeContainer attributeContainer) {
+        super.onRemoved(attributeContainer);
+
+//        attributeContainer.getTracked().stream().toList().get(0).
+//
+//        if(!((IMagicProperties)entity).isAwakened() && entity instanceof PlayerEntity playerEntity && entity.getHealth() > 0.0f){
+//            ((IMagicProperties)playerEntity).setAwakened(true);
+//            ((IMagicProperties)playerEntity).setMaxMagicka(20);
+//            ((IMagicProperties)playerEntity).setMagickaRegenRate(1.0f);
+//            playerEntity.sendMessage(MutableText.of(new LiteralTextContent("The visions have ceased. You're safe now, but you feel different.")));
+//        }
     }
 
     @Override

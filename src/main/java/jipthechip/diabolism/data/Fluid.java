@@ -10,6 +10,9 @@ import java.util.Objects;
 
 public class Fluid implements Serializable {
 
+    public static final int NUM_ELEMENTS = 6;
+    public static final int NUM_MAGICKA = 11;
+
     protected int amount = 0;
 
     protected int capacity;
@@ -19,8 +22,6 @@ public class Fluid implements Serializable {
     protected float[] magickaContents;
 
     protected int color = -1; // fluid color that overrides the default color (-1 for default)
-
-    public static final int[] ELEMENT_COLORS = new int[]{0xfff0e36c, 0xffed3f1c, 0xff1c7eed, 0xff75430d, 0xff000000, 0xffffffff};
 
     protected FluidRenderData renderData;
 
@@ -43,16 +44,14 @@ public class Fluid implements Serializable {
     }
 
     public int add(Fluid fromFluid){
-        if(equals(fromFluid) && !isFull()){
-            //System.out.println("amount in add fluid: "+amount);
-            //System.out.println("capacity left: "+(this.capacity - this.amount));
+        if(!isFull()){
             int amountAdded = Math.min(fromFluid.getAmount(), this.capacity - this.amount);
-            //System.out.println("adjusted amount: "+amountAdded);
             if(amountAdded > 0){
-                this.amount += amountAdded;
-                this.renderData = fromFluid.getRenderData();
-                this.elementContents = fromFluid.getElementContents();
-                this.color = fromFluid.getColor();
+                if(!this.equals(fromFluid)){
+                    addOtherFluid(fromFluid, amountAdded);
+                }else{
+                    this.amount += amountAdded;
+                }
                 return amountAdded;
             }
         }
@@ -60,16 +59,17 @@ public class Fluid implements Serializable {
     }
 
     public int add(Fluid fromFluid, int amount){
-        if(equals(fromFluid) && !isFull()){
-            //System.out.println("amount in add fluid: "+amount);
-            //System.out.println("capacity left: "+(this.capacity - this.amount));
+        if(!isFull()){
+
             int amountAdded = Math.min(Math.min(fromFluid.getAmount(), amount), this.capacity - this.amount);
-            //System.out.println("adjusted amount: "+amountAdded);
+
             if(amountAdded > 0){
-                this.amount += amountAdded;
-                this.renderData = fromFluid.getRenderData();
-                this.elementContents = fromFluid.getElementContents();
-                this.color = fromFluid.getColor();
+
+                if(!this.equals(fromFluid)){
+                    addOtherFluid(fromFluid, amountAdded);
+                }else{
+                    this.amount += amountAdded;
+                }
                 return amountAdded;
             }
         }
@@ -79,7 +79,6 @@ public class Fluid implements Serializable {
     public void remove(int amount){
         if(this.amount >= amount){
             this.amount -= amount;
-            System.out.println("removed "+amount+" fluid. New amount: "+this.amount);
         }
     }
 
@@ -114,7 +113,7 @@ public class Fluid implements Serializable {
     }
 
     public void addElementContents(BrewIngredient brewIngredient){
-        if (elementContents == null || elementContents.length == 0) elementContents = new float[6];
+        if (elementContents == null || elementContents.length == 0) elementContents = new float[NUM_ELEMENTS];
         elementContents[0] += brewIngredient.air();
         elementContents[1] += brewIngredient.fire();
         elementContents[2] += brewIngredient.water();
@@ -137,7 +136,7 @@ public class Fluid implements Serializable {
 
     public void addMagickaContent(int index, float amount){
         if(magickaContents == null || magickaContents.length == 0){
-            magickaContents = new float[6];
+            magickaContents = new float[NUM_MAGICKA];
         }
         magickaContents[index] += amount;
     }
@@ -184,15 +183,43 @@ public class Fluid implements Serializable {
         for (int i = 0; i < probabilities.length; i++) {
             cumulativeProbability += probabilities[i];
             if (p <= cumulativeProbability) {
-                return Fluid.ELEMENT_COLORS[i];
+                return Spell.ELEMENT_COLORS[i];
             }
         }
 
         return 0;
     }
 
+    private void addOtherFluid(Fluid otherFluid, int amount){
+        float[] otherElementContents = otherFluid.getElementContents();
+        float[] otherMagickaContents = otherFluid.getMagickaContents();
+
+        float[] newElementContents = new float[NUM_ELEMENTS];
+        float[] newMagickaContents = new float[NUM_MAGICKA];
+
+        if(otherElementContents != null){
+            for(int i = 0; i < NUM_ELEMENTS; i++){
+                newElementContents[i] = (elementContents[i] * ((float)this.amount / amount) + otherElementContents[i] * ((float)amount / this.amount))/2;
+            }
+            elementContents = newElementContents;
+        }
+
+        if(otherMagickaContents != null){
+            for(int i = 0; i < NUM_MAGICKA; i++){
+                newMagickaContents[i] = (magickaContents[i] * ((float)this.amount / amount) + otherMagickaContents[i] * ((float)amount / this.amount))/2;
+            }
+            magickaContents = newMagickaContents;
+        }
+
+        color = (int)((color * ((float)this.amount / amount)) + (otherFluid.getColor() * ((float)amount / this.amount))) / 2;
+
+        this.amount += amount;
+
+        // TODO fluid render data is unchanged, keeping original for now, may need to change later
+    }
+
     @Override
     public String toString(){
-        return "{amount: "+amount+", capacity: "+capacity+", elementContents: "+Arrays.toString(elementContents)+", color: "+ color +"}";
+        return "{\namount: "+amount+",\ncapacity: "+capacity+",\nelementContents: "+Arrays.toString(elementContents)+",\nmagickaContents: "+Arrays.toString(magickaContents)+",\ncolor: "+ String.format("0x%08X", color) +"\n}";
     }
 }

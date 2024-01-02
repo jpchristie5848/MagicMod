@@ -3,8 +3,10 @@ package jipthechip.diabolism.entities.blockentities;
 import jipthechip.diabolism.data.BrewIngredient;
 import jipthechip.diabolism.Utils.DataUtils;
 import jipthechip.diabolism.data.Fluid;
+import jipthechip.diabolism.items.DiabolismItems;
 import jipthechip.diabolism.packets.DiabolismPackets;
 import jipthechip.diabolism.render.FluidRenderData;
+import jipthechip.diabolism.render.RenderDataMappings;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -12,25 +14,36 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 
 import javax.annotation.Nullable;
 
 public abstract class AbstractFluidContainer extends AbstractSyncedBlockEntity implements GeoAnimatable {
 
+    protected long lastInteractionTime = 0;
     protected int capacity;
 
     protected Fluid fluid;
 
-    public AbstractFluidContainer(BlockEntityType<?> type, BlockPos pos, BlockState state, int capacity) {
+    protected final boolean canFillBucket;
+
+    public AbstractFluidContainer(BlockEntityType<?> type, BlockPos pos, BlockState state, int capacity, boolean canFillBucket) {
         super(type, pos, state);
         this.capacity = capacity;
+        this.canFillBucket = canFillBucket;
     }
 
     @Override
@@ -227,6 +240,69 @@ public abstract class AbstractFluidContainer extends AbstractSyncedBlockEntity i
             }
         }
         //System.out.println("transferred "+amountTransferred+" fluid to container at "+toContainer.getPos());
+        return false;
+    }
+
+    protected boolean canInteract(){
+        return System.currentTimeMillis() - lastInteractionTime >= 500;
+    }
+
+    public boolean addWaterBucket(PlayerEntity player, Hand hand){
+        if(canFillBucket && world != null && !world.isClient && player.getStackInHand(hand).getItem() == Items.WATER_BUCKET && this.getFluid() == null && canInteract()){
+            this.addFluid(1000, RenderDataMappings.Fluids.get("churner_fluid"));
+            if(!player.isCreative()){
+                player.setStackInHand(hand, new ItemStack(Items.BUCKET));
+            }
+
+            Vec3d posVec3d = getPosVec3d();
+            world.playSound(null, posVec3d.getX(), posVec3d.getY(), posVec3d.getZ(), SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.BLOCKS, 1.0f, (float)Math.random()*0.5f+0.5f);
+
+            lastInteractionTime = System.currentTimeMillis();
+            markDirty();
+            syncWithClient();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean addBrewBucket(PlayerEntity player, Hand hand){
+
+        if(canFillBucket && world != null && !world.isClient && player.getStackInHand(hand).getItem() == DiabolismItems.BREW_FLUID_BUCKET && this.getFluid() == null && canInteract()){
+            Fluid fluid = DataUtils.readObjectFromItemNbt(player.getStackInHand(hand), Fluid.class);
+            this.addFluid(fluid);
+            Vec3d posVec3d = getPosVec3d();
+            world.playSound(null, posVec3d.getX(), posVec3d.getY(), posVec3d.getZ(), SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.BLOCKS, 1.0f, (float)Math.random()*0.5f+0.5f);
+
+            if(!player.isCreative()){
+                player.setStackInHand(hand, new ItemStack(Items.BUCKET));
+            }
+
+            lastInteractionTime = System.currentTimeMillis();
+            markDirty();
+            syncWithClient();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean fillBucket(PlayerEntity player, Hand hand){
+
+        if(canFillBucket && world != null && !world.isClient && player.getStackInHand(hand).getItem() == Items.BUCKET && this.getFluid() != null && canInteract()){
+
+            ItemStack brewBucketStack = new ItemStack(DiabolismItems.BREW_FLUID_BUCKET);
+            DataUtils.writeObjectToItemNbt(brewBucketStack, this.getFluid());
+            player.setStackInHand(hand, brewBucketStack);
+
+            this.removeFluid(this.getFluidAmount());
+
+            Vec3d posVec3d = getPosVec3d();
+            world.playSound(null, posVec3d.getX(), posVec3d.getY(), posVec3d.getZ(), SoundEvents.ITEM_BUCKET_FILL, SoundCategory.BLOCKS, 1.0f, (float)Math.random()*0.5f+0.5f);
+
+            lastInteractionTime = System.currentTimeMillis();
+            markDirty();
+            syncWithClient();
+            return true;
+        }
         return false;
     }
 }

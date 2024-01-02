@@ -33,7 +33,7 @@ public abstract class AbstractFluidAltar extends AbstractFluidContainer  impleme
     private Identifier storedItem;
 
     public AbstractFluidAltar(BlockEntityType<?> type, BlockPos pos, BlockState state, int capacity, BlockEntityRecipe[] recipes) {
-        super(type, pos, state, capacity);
+        super(type, pos, state, capacity, true);
         this.recipes = recipes;
     }
 

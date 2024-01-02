@@ -1,5 +1,8 @@
 package jipthechip.diabolism.data;
 
+import net.minecraft.entity.effect.StatusEffect;
+
+import java.util.Map;
 public enum MagicElement {
     AIR,
     FIRE,
@@ -13,3 +16,4 @@ public enum MagicElement {
     DEATH,
     SPIRIT
 }
+

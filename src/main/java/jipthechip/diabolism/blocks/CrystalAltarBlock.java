@@ -71,7 +71,7 @@ public class CrystalAltarBlock extends AbstractCrystalAltarBlock{
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, DiabolismEntities.CRYSTAL_ALTAR_BLOCKENTITY, CrystalAltarBlockEntity::ticker);
+        return validateTicker(type, DiabolismEntities.CRYSTAL_ALTAR_BLOCKENTITY, CrystalAltarBlockEntity::ticker);
     }
 
 

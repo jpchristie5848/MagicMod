@@ -133,6 +133,6 @@ public class FluidPumpBlock extends FluidPipeBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, DiabolismEntities.FLUID_PUMP_BLOCKENTITY, FluidPump::ticker);
+        return validateTicker(type, DiabolismEntities.FLUID_PUMP_BLOCKENTITY, FluidPump::ticker);
     }
 }

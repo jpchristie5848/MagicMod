@@ -10,6 +10,11 @@
   "item.diabolism.star_shard": "Star Shard",
   "item.diabolism.brew_fluid_bucket": "Brew Fluid Bucket",
   "item.diabolism.mystical_yeast": "Mystical Yeast",
+  "item.diabolism.spell_template": "Spell Template",
+  "item.diabolism.magicka_crystal": "Magicka Crystal",
+  "item.diabolism.spell_modifier": "Spell Modifier",
+  "item.diabolism.wizwich": "Wizwich",
+
 
   "item.minecraft.potion.effect.awakening_potion": "Potion Of Awakening",
   "item.minecraft.splash_potion.effect.awakening_potion": "Splash Potion Of Awakening",
@@ -38,10 +43,23 @@
   "block.diabolism.fluid_pipe": "Fluid Pipe",
   "block.diabolism.fluid_pump": "Fluid Pump",
   "block.diabolism.magic_fermenter": "Magic Fermenter",
+  "block.diabolism.arcane_altar": "Arcane Altar",
 
   "effect.diabolism.awakening_status_effect": "Awakening",
   "effect.diabolism.wet_status_effect": "Wet",
   "effect.diabolism.chilly_status_effect": "Chilly",
   "effect.diabolism.frozen_status_effect": "Frozen",
-  "effect.diabolism.magic_harm_status_effect": "Magic Harm"
+  "effect.diabolism.magic_harm_status_effect": "Magic Harm",
+  "effect.diabolism.magic_burning_status_effect": "Magic Burning",
+  "effect.diabolism.shock_status_effect": "Shock",
+  "effect.diabolism.paralysis_status_effect": "Paralysis",
+  "effect.diabolism.broken_bones_status_effect": "Broken Bones",
+  "effect.diabolism.life_status_effect": "Life",
+  "effect.diabolism.death_status_effect": "Death",
+
+  "death.attack.squidward_0": "%s loves krabby patties",
+  "death.attack.squidward_1": "It went right to %s's thighs",
+  "death.attack.squidward_2": "%s forgot the pickles"
+
+
 }

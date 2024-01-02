@@ -41,6 +41,8 @@ public class BlockHelpers {
 
                     Block block = world.getBlockState(newPos).getBlock();
 
+                    //System.out.println("target condition success: "+targetCondition.evaluate(world.getBlockEntity(newPos)));
+
                     if(!ignoredTargets.contains(newPos) && targetCondition.evaluate(world.getBlockEntity(newPos))){
                         path.add(newPos);
                         parents.put(newPos, currentPos);

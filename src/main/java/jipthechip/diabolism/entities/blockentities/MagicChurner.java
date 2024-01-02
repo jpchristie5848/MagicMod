@@ -1,20 +1,28 @@
 package jipthechip.diabolism.entities.blockentities;
 
 import io.wispforest.owo.util.ImplementedInventory;
+import jipthechip.diabolism.Utils.DataUtils;
+import jipthechip.diabolism.Utils.InventoryHelpers;
 import jipthechip.diabolism.data.BrewIngredient;
 import jipthechip.diabolism.Utils.ImageUtils;
 import jipthechip.diabolism.entities.DiabolismEntities;
+import jipthechip.diabolism.items.DiabolismItems;
 import jipthechip.diabolism.packets.DiabolismPackets;
 import jipthechip.diabolism.particle.ColoredSplashParticleFactory;
 import jipthechip.diabolism.particle.ColoredSpellParticleFactory;
+import jipthechip.diabolism.sound.DiabolismSounds;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -23,6 +31,7 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -41,9 +50,12 @@ import software.bernie.geckolib.util.RenderUtils;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MagicChurner extends AbstractFluidContainer implements GeoBlockEntity, ImplementedInventory {
+
+    private final int MAX_DAYTIME = 24000;
 
     private AnimatableInstanceCache instanceCache = GeckoLibUtil.createInstanceCache(this);
     private int tickCounter=0;
@@ -65,7 +77,7 @@ public class MagicChurner extends AbstractFluidContainer implements GeoBlockEnti
 
 
     public MagicChurner(BlockPos pos, BlockState state) {
-        super(DiabolismEntities.MAGIC_CHURNER_BLOCKENTITY, pos, state, 1000);
+        super(DiabolismEntities.MAGIC_CHURNER_BLOCKENTITY, pos, state, 1000, true);
     }
 
     @Override
@@ -111,6 +123,11 @@ public class MagicChurner extends AbstractFluidContainer implements GeoBlockEnti
             mixIngredients();
         }
 
+        if(tickCounter % 20 == 0 && fluid == null){
+            mixingProgress = 0;
+            syncWithClient();
+        }
+
     }
 
     public AnimationController<MagicChurner> getController(){
@@ -154,7 +171,7 @@ public class MagicChurner extends AbstractFluidContainer implements GeoBlockEnti
     private void mixIngredients(){
 
         int firstEmptySlot = getFirstEmptySlot(); // check if churner contains items
-        if(mixingProgress < 100.0f && firstEmptySlot != 0){
+        if(world != null && !world.isClient && mixingProgress < 100.0f && firstEmptySlot != 0){
 
             Vec3d splashPos = new Vec3d(pos.getX()+0.15 + Math.random()*0.7, pos.getY()+0.9, pos.getZ()+0.15 + Math.random()*0.7);
             for(int i = 0; i < 3; i++) {
@@ -195,11 +212,17 @@ public class MagicChurner extends AbstractFluidContainer implements GeoBlockEnti
 
                 mixedIngredients = getFirstEmptySlot() == -1 ? inventory.size() : getFirstEmptySlot();
 
-                System.out.println("ingredients start index: "+initialMixedIngredients);
-                System.out.println("ingredients end index: "+mixedIngredients);
+//                System.out.println("ingredients start index: "+initialMixedIngredients);
+//                System.out.println("ingredients end index: "+mixedIngredients);
 
                 for (int i = initialMixedIngredients; i < mixedIngredients; i++){
-                    addElementContents(BrewIngredient.mappings.get(inventory.get(i).getItem()));
+                    Item ingredientItem = inventory.get(i).getItem();
+
+                    if(!BrewIngredient.mappings.containsKey(ingredientItem)){
+                        System.out.println("WARNING: Item "+ingredientItem+" is not set in the map!");
+                    }
+
+                    addElementContents(BrewIngredient.mappings.get(ingredientItem));
                 }
                 clearInventory();
             }
@@ -220,6 +243,7 @@ public class MagicChurner extends AbstractFluidContainer implements GeoBlockEnti
     }
 
     public void setStack(int slot, ItemStack stack) {
+        System.out.println("set churner slot "+slot+" to item "+stack.getItem());
         ImplementedInventory.super.setStack(slot, stack);
         markDirty();
     }
@@ -232,11 +256,6 @@ public class MagicChurner extends AbstractFluidContainer implements GeoBlockEnti
 
     public float getMixingProgress() {
         return mixingProgress;
-    }
-
-    public void setMixingProgress(float mixingProgress) {
-        this.mixingProgress = mixingProgress;
-        markDirty();
     }
 
     public void syncWithServer(){
@@ -268,12 +287,95 @@ public class MagicChurner extends AbstractFluidContainer implements GeoBlockEnti
         this.mixedIngredients = mixedIngredients;
     }
 
+    public void setMixingProgress(float mixingProgress) {
+        this.mixingProgress = mixingProgress;
+        markDirty();
+    }
+
     @Override
     public void removeFluid(int amount) {
         super.removeFluid(amount);
         if(amount == 0){
             this.setMixingProgress(0);
             this.mixedIngredients = 0;
+        }
+    }
+
+    public boolean addIngredient(PlayerEntity player, Hand hand){
+        if(world != null && !world.isClient && canInteract() && BrewIngredient.isValidIngredient(player.getStackInHand(hand).getItem())){
+            int slot = this.getFirstEmptySlot();
+
+            if(slot > -1 && this.getMixingProgress() < 100 && this.getFluid() != null){
+                //System.out.println("adding ingredient");
+                this.setStack(slot, InventoryHelpers.getItemsFromStackInHand(player, hand, 1));
+                //world.playSoundAtBlockCenter(pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 1.0f, (float)Math.random()*0.5f+0.5f, true);
+                Vec3d posVec3d = getPosVec3d();
+                world.playSound(null, posVec3d.getX(), posVec3d.getY(), posVec3d.getZ(), SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 1.0f, (float)Math.random()*0.5f+0.5f);
+                this.setMixingProgress(0);
+
+                Vec3d splashPos = new Vec3d(pos.getX()+0.15 + Math.random()*0.7, pos.getY()+0.9, pos.getZ()+0.15 + Math.random()*0.7);
+
+                for (int i = 0; i < 15; i++){
+                    PlayerLookup.tracking(this).forEach(player1 ->
+                            ((ServerWorld)world).spawnParticles(ColoredSplashParticleFactory.createData(getFluidColor()), splashPos.getX(), splashPos.getY(), splashPos.getZ(), 1, 0,0, 0, 0));
+                }
+                lastInteractionTime = System.currentTimeMillis();
+                markDirty();
+                syncWithClient();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean fillBucket(PlayerEntity player, Hand hand){
+
+        boolean bucketFilled = super.fillBucket(player, hand);
+        if(bucketFilled){
+            if(this.getMixingProgress() < 100){
+                for(ItemStack stack : this.getItems()){
+                    world.spawnEntity(new ItemEntity(world, pos.getX()+0.5f, pos.getY()+1.2f, pos.getZ()+0.5f, stack));
+                }
+                player.setStackInHand(hand, new ItemStack(Items.WATER_BUCKET));
+            }else{
+                ItemStack brewBucketStack = new ItemStack(DiabolismItems.BREW_FLUID_BUCKET);
+                DataUtils.writeObjectToItemNbt(brewBucketStack, this.getFluid());
+                player.setStackInHand(hand, brewBucketStack);
+            }
+            this.clearInventory();
+            this.setMixingProgress(0);
+            markDirty();
+            syncWithClient();
+        }
+        return false;
+    }
+
+    public void turn(){
+
+        if(world != null && !world.isClient && System.currentTimeMillis() - lastTurnedTime > 3500){
+            System.out.println("world is client: "+world.isClient);
+            lastTurnedTime = System.currentTimeMillis();
+            this.triggerAnim("magic_churner_controller", "magic_churner_turn");
+            if(this.getFluid() != null){
+
+                //world.playSoundAtBlockCenter(pos, DiabolismSounds.CHURNER_SLOSH, SoundCategory.BLOCKS, 1.5f, (float)1.0f, true);
+
+                Vec3d posVec3d = getPosVec3d();
+                world.playSound(null, posVec3d.getX(), posVec3d.getY(), posVec3d.getZ(), DiabolismSounds.CHURNER_SLOSH, SoundCategory.BLOCKS, 1.5f, (float)1.0f);
+
+
+//                PacketByteBuf buf = PacketByteBufs.create();
+//                buf.writeBlockPos(pos);
+//                ClientPlayNetworking.send(DiabolismPackets.BEGIN_CHURNER_MIXING, buf);
+                startMixing();
+            }
+
+            if(this.getFluid() != null){
+                System.out.println("magic churner amount: "+this.getFluidAmount());
+                System.out.println("magic churner mixing progress: "+this.getMixingProgress());
+                System.out.println("magic churner color: "+this.getFluidColor());
+                System.out.println("magic churner element contents: "+ Arrays.toString(this.getElementContents()));
+            }
         }
     }
 

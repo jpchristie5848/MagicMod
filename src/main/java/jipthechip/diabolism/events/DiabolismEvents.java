@@ -1,10 +1,12 @@
 package jipthechip.diabolism.events;
 
 import jipthechip.diabolism.blocks.*;
+import jipthechip.diabolism.data.Spell;
+import jipthechip.diabolism.data.SpellType;
 import jipthechip.diabolism.items.DiabolismItems;
 import jipthechip.diabolism.Utils.IMagicProperties;
 import jipthechip.diabolism.packets.DiabolismPackets;
-import jipthechip.diabolism.potion.DiabolismPotions;
+import jipthechip.diabolism.potion.DiabolismEffects;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
@@ -13,7 +15,6 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LightningRodBlock;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -22,9 +23,6 @@ import net.minecraft.text.LiteralTextContent;
 import net.minecraft.text.MutableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.math.Box;
-
-import java.util.List;
 
 public class DiabolismEvents {
 
@@ -45,17 +43,17 @@ public class DiabolismEvents {
         LightningStrikeCallback.EVENT.register(((lightningEntity, blockPos) -> {
 
             System.out.println("lightning strike event fired");
-            BlockState belowState = lightningEntity.world.getBlockState(blockPos.down());
+            BlockState belowState = lightningEntity.getWorld().getBlockState(blockPos.down());
 
             //
             // Event for activating conductive pillars under lightning rods
             //
 
-            BlockState state = lightningEntity.world.getBlockState(blockPos);
+            BlockState state = lightningEntity.getWorld().getBlockState(blockPos);
             if(state.getBlock() instanceof LightningRodBlock) {
                 if(belowState.getBlock() instanceof AbstractActivatedBlock){
                     if (!belowState.get(AbstractActivatedBlock.ACTIVATED))
-                        lightningEntity.world.setBlockState(blockPos.down(),
+                        lightningEntity.getWorld().setBlockState(blockPos.down(),
                                 belowState.with(AbstractActivatedBlock.ACTIVATED, true));
                 }
             }
@@ -99,17 +97,55 @@ public class DiabolismEvents {
             if(!world.isClient && stackInHand.getItem() == DiabolismItems.BASIC_WAND){
 
                 //player.addStatusEffect(new StatusEffectInstance(DiabolismPotions.UPDRAFT_STATUS_EFFECT, 100, 0));
-                if(player.isSneaking()){
-                    List<LivingEntity> entities = world.getEntitiesByClass(LivingEntity.class, Box.of(player.getPos(), 10.0, 10.0, 10.0), entity->true);
-                    for(LivingEntity entity : entities){
-                        entity.addStatusEffect(new StatusEffectInstance(DiabolismPotions.CHILLY_STATUS_EFFECT, 200, 50));
-                    }
-                }else{
-                    List<LivingEntity> entities = world.getEntitiesByClass(LivingEntity.class, Box.of(player.getPos(), 10.0, 10.0, 10.0), entity->true);
-                    for(LivingEntity entity : entities){
-                        entity.addStatusEffect(new StatusEffectInstance(DiabolismPotions.WET_STATUS_EFFECT, 200, 0, false, false, true));
+
+                // FOR TESTING FROZEN STATUS EFFECT
+
+//                if(player.isSneaking()){
+//                    List<LivingEntity> entities = world.getEntitiesByClass(LivingEntity.class, Box.of(player.getPos(), 10.0, 10.0, 10.0), entity->true);
+//                    for(LivingEntity entity : entities){
+//                        entity.addStatusEffect(new StatusEffectInstance(DiabolismPotions.CHILLY_STATUS_EFFECT, 200, 50));
+//                    }
+//                }else{
+//                    List<LivingEntity> entities = world.getEntitiesByClass(LivingEntity.class, Box.of(player.getPos(), 10.0, 10.0, 10.0), entity->true);
+//                    for(LivingEntity entity : entities){
+//                        entity.addStatusEffect(new StatusEffectInstance(DiabolismPotions.WET_STATUS_EFFECT, 200, 0, false, false, true));
+//                    }
+//                }
+
+                // FOR TESTING SHOCK STATUS EFFECT
+
+//                if(player.isSneaking()){
+//                    List<LivingEntity> entities = world.getEntitiesByClass(LivingEntity.class, Box.of(player.getPos(), 10.0, 10.0, 10.0), entity->true);
+//                    for(LivingEntity entity : entities){
+//                        entity.addStatusEffect(new StatusEffectInstance(DiabolismEffects.SHOCK_STATUS_EFFECT, 0, 50));
+//                    }
+//                }
+
+
+                Spell[] testSpells = new Spell[]{
+//                        new Spell(SpellType.PROJECTILE, new StatusEffectInstance(DiabolismEffects.UPDRAFT_STATUS_EFFECT, 100, 50)),
+//                        new Spell(SpellType.PROJECTILE, new StatusEffectInstance(DiabolismEffects.SHOCK_STATUS_EFFECT, 0, 50)),
+                        new Spell(SpellType.PROJECTILE, new StatusEffectInstance(DiabolismEffects.CHILLY_STATUS_EFFECT, 100, 50)),
+                        new Spell(SpellType.PROJECTILE, new StatusEffectInstance(DiabolismEffects.WET_STATUS_EFFECT, 100, 0)),
+//                        new Spell(SpellType.PROJECTILE, new StatusEffectInstance(DiabolismEffects.BURNING_STATUS_EFFECT, 100, 50)),
+//                        new Spell(SpellType.PROJECTILE, new StatusEffectInstance(DiabolismEffects.SHOCK_STATUS_EFFECT, 0, 50), new StatusEffectInstance(DiabolismEffects.BURNING_STATUS_EFFECT, 100, 50)),
+                          //new Spell(SpellType.PROJECTILE, new StatusEffectInstance(DiabolismEffects.BROKEN_BONES_STATUS_EFFECT, 500, 50)),
+                          //new Spell(SpellType.SELF, new StatusEffectInstance(DiabolismEffects.LIFE_STATUS_EFFECT, 100, 60)),
+                          //new Spell(SpellType.SELF, new StatusEffectInstance(DiabolismEffects.DEATH_STATUS_EFFECT, 100, 20))
+                };
+
+                double random = Math.random();
+                float sum = 0;
+                int chosenSpellIndex = 0;
+                for (int i = 0; i < testSpells.length; i++){
+                    sum += 1.0f/ testSpells.length;
+                    if(random < sum){
+                        chosenSpellIndex = i;
+                        break;
                     }
                 }
+
+                testSpells[chosenSpellIndex].cast(player);
 
                 //player.addStatusEffect(new StatusEffectInstance())
 
@@ -147,7 +183,7 @@ public class DiabolismEvents {
             }
 
             else if(stackInHand.getItem() == Items.MILK_BUCKET){
-                if(player.hasStatusEffect(DiabolismPotions.AWAKENING_STATUS_EFFECT)){
+                if(player.hasStatusEffect(DiabolismEffects.ELEMENTAL.get("awakening"))){
                     player.sendMessage(MutableText.of(new LiteralTextContent("Your body rejects it, you can't turn back now")));
                     return TypedActionResult.fail(stackInHand);
                 }

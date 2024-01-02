@@ -35,6 +35,8 @@ public class DiabolismEntities {
 
     public static BlockEntityType<MagicFermenter> MAGIC_FERMENTER_BLOCKENTITY;
 
+    public static BlockEntityType<ArcaneAltar> ARCANE_ALTAR_BLOCKENTITY;
+
 
     // entities
 
@@ -56,6 +58,7 @@ public class DiabolismEntities {
         FLUID_PIPE_BLOCKENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, "diabolism:fluid_pipe_blockentity", FabricBlockEntityTypeBuilder.create(FluidPipe::new, DiabolismBlocks.FLUID_PIPE).build(null));
         FLUID_PUMP_BLOCKENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, "diabolism:fluid_pump_blockentity", FabricBlockEntityTypeBuilder.create(FluidPump::new, DiabolismBlocks.FLUID_PUMP).build(null));
         MAGIC_FERMENTER_BLOCKENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, "diabolism:magic_fermenter_blockentity", FabricBlockEntityTypeBuilder.create(MagicFermenter::new, DiabolismBlocks.MAGIC_FERMENTER).build(null));
+        ARCANE_ALTAR_BLOCKENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, "diabolism:arcane_altar_blockentity", FabricBlockEntityTypeBuilder.create(ArcaneAltar::new, DiabolismBlocks.ARCANE_ALTAR).build(null));
 
         PROJECTILE_SPELL = Registry.register(Registries.ENTITY_TYPE, "diabolism:projectile_spell_entity",
                 FabricEntityTypeBuilder.<ProjectileSpellEntity>create(SpawnGroup.MISC, ProjectileSpellEntity::new)

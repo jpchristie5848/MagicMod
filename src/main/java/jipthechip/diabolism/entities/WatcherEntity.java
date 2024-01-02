@@ -51,7 +51,7 @@ public class WatcherEntity extends ParticleSpawningEntity {
     public void tick() {
         super.tick();
 
-        Entity entity = world.getEntityById(playerEntityId);
+        Entity entity = getWorld().getEntityById(playerEntityId);
 
         if(!(entity instanceof PlayerEntity playerEntity) || ((IMagicProperties)playerEntity).isAwakened() || playerEntity.getHealth() <= 0.0f) {
             this.kill();
@@ -68,11 +68,11 @@ public class WatcherEntity extends ParticleSpawningEntity {
         Vec3d lookVector = playerEntity.getPos().add(0,1,0).subtract(this.getPos()).normalize();
         Vec3d leftVector = MathUtils.getPerpendicularToLookVector(lookVector);
 
-        ((ServerWorld) world).spawnParticles((ServerPlayerEntity) playerEntity, DiabolismParticles.WATCHER_PARTICLE, true,
+        ((ServerWorld) getWorld()).spawnParticles((ServerPlayerEntity) playerEntity, DiabolismParticles.WATCHER_PARTICLE, true,
                 this.getPos().x + lookVector.x*0.5 + leftVector.x*0.25, this.getPos().y + lookVector.y*0.5 + leftVector.y*0.25,
                 this.getPos().z + lookVector.z*0.5 + leftVector.z*0.25, 0,0,0,0,0);
 
-        ((ServerWorld) world).spawnParticles((ServerPlayerEntity) playerEntity, DiabolismParticles.WATCHER_PARTICLE, true,
+        ((ServerWorld) getWorld()).spawnParticles((ServerPlayerEntity) playerEntity, DiabolismParticles.WATCHER_PARTICLE, true,
                 this.getPos().x + lookVector.x*0.5 + leftVector.multiply(-1).x*0.25, this.getPos().y + lookVector.y*0.5 + leftVector.multiply(-1).y*0.25,
                 this.getPos().z + lookVector.z*0.5 + leftVector.multiply(-1).z*0.25, 0,0,0,0,0);
     }

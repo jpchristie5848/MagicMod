@@ -1,6 +1,6 @@
 package jipthechip.diabolism.entities.blockentities.geo;
 
-import jipthechip.diabolism.entities.blockentities.AbstractGeoBlockWithFluidRenderer;
+import jipthechip.diabolism.entities.blockentities.AbstractFluidContainerRenderer;
 import jipthechip.diabolism.entities.blockentities.MagicChurner;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -10,7 +10,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Box;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 
-public class MagicChurnerBlockRenderer extends AbstractGeoBlockWithFluidRenderer<MagicChurner> {
+public class MagicChurnerBlockRenderer extends AbstractFluidContainerRenderer<MagicChurner> {
 
 
 

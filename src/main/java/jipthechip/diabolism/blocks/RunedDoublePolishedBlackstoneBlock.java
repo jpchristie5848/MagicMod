@@ -24,7 +24,7 @@ public class RunedDoublePolishedBlackstoneBlock extends AbstractActivatedBlock{
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, DiabolismEntities.RUNED_BLACKSTONE_BLOCKENTITY, RunedBlackstoneBlockEntity::ticker);
+        return validateTicker(type, DiabolismEntities.RUNED_BLACKSTONE_BLOCKENTITY, RunedBlackstoneBlockEntity::ticker);
     }
 
     @Override

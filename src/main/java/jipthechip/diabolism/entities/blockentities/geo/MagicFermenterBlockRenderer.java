@@ -1,7 +1,6 @@
 package jipthechip.diabolism.entities.blockentities.geo;
 
-import jipthechip.diabolism.entities.blockentities.AbstractGeoBlockWithFluidRenderer;
-import jipthechip.diabolism.entities.blockentities.MagicChurner;
+import jipthechip.diabolism.entities.blockentities.AbstractFluidContainerRenderer;
 import jipthechip.diabolism.entities.blockentities.MagicFermenter;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -10,9 +9,8 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Box;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.model.GeoModel;
 
-public class MagicFermenterBlockRenderer extends AbstractGeoBlockWithFluidRenderer<MagicFermenter> {
+public class MagicFermenterBlockRenderer extends AbstractFluidContainerRenderer<MagicFermenter> {
 
     private final Box[] FLUID_BOXES = new Box[]{new Box(1,1,6,15,13,10), new Box(2,1,10,14,13,13), new Box(3,1,13, 13,13,14),
             new Box(6,1,14,10,13,15), new Box(2,1,3,14,13,6), new Box(3,1,2,13,13,3),  new Box(6,1,1,10,13,2)};

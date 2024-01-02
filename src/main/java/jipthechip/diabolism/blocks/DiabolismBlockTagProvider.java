@@ -5,6 +5,7 @@
 //import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 //import net.minecraft.block.Block;
 //import net.minecraft.registry.RegistryWrapper;
+//import net.minecraft.registry.tag.DamageTypeTags;
 //import net.minecraft.tag.BlockTags;
 //import net.minecraft.util.registry.Registry;
 //import net.minecraft.data.DataGenerator;
@@ -18,7 +19,10 @@
 //
 //    @Override
 //    protected void generateTags() {
-//        //getOrCreateTagBuilder(BlockTags.DIRT).add(new Block[]{DiabolismBlocks.MOSSY_PILLAR});
+//
+//        DamageTypeTags.
+//
+//        getOrCreateTagBuilder(BlockTags.DIRT).add(new Block[]{DiabolismBlocks.MOSSY_PILLAR});
 //    }
 //
 //    @Override

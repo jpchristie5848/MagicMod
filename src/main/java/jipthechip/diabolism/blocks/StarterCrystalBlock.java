@@ -59,7 +59,7 @@ public class StarterCrystalBlock extends AbstractActivatedBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, DiabolismEntities.STARTER_CRYSTAL_BLOCKENTITY, StarterCrystalBlockEntity::ticker);
+        return validateTicker(type, DiabolismEntities.STARTER_CRYSTAL_BLOCKENTITY, StarterCrystalBlockEntity::ticker);
     }
 
     @Override

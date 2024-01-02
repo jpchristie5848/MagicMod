@@ -10,10 +10,10 @@ import net.minecraft.util.math.Vec3d;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
-public abstract class AbstractGeoBlockWithFluidRenderer<T extends AbstractFluidContainer> extends GeoBlockRenderer<T> {
+public abstract class AbstractFluidContainerRenderer<T extends AbstractFluidContainer> extends GeoBlockRenderer<T> {
 
 
-    public AbstractGeoBlockWithFluidRenderer(GeoModel<T> model) {
+    public AbstractFluidContainerRenderer(GeoModel<T> model) {
         super(model);
     }
 
@@ -25,6 +25,9 @@ public abstract class AbstractGeoBlockWithFluidRenderer<T extends AbstractFluidC
     // @param light
     // @param overlay
     protected void renderFluid(Box[] fluidBoxes, T entity, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay){
+
+        matrices.translate(-0.5f, 0.0f, -0.5f);
+
         FluidRenderData fluid = entity.getFluidRenderData();
         double minHeight = 16;
         double maxHeight = 0;
@@ -55,7 +58,7 @@ public abstract class AbstractGeoBlockWithFluidRenderer<T extends AbstractFluidC
             for (Box fluidBox : fluidBoxes) {
                 Vec3d from = new Vec3d(fluidBox.minX, fluidBox.minY, fluidBox.minZ);
 
-                double heightToFill = (Math.min(fluidBox.getYLength(), Math.max(0, scaledAmount - from.getY() + minHeight)));
+                double heightToFill = (Math.min(fluidBox.getLengthY(), Math.max(0, scaledAmount - from.getY() + minHeight)));
 
                 Vec3d to = new Vec3d(fluidBox.maxX, fluidBox.minY + heightToFill, fluidBox.maxZ);
 

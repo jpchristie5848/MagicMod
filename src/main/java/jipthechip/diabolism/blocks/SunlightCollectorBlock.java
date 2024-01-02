@@ -31,7 +31,7 @@ public class SunlightCollectorBlock extends AbstractMagickaCollectorBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, DiabolismEntities.SUNLIGHT_COLLECTOR_BLOCKENTITY, SunlightCollectorBlockEntity::ticker);
+        return validateTicker(type, DiabolismEntities.SUNLIGHT_COLLECTOR_BLOCKENTITY, SunlightCollectorBlockEntity::ticker);
     }
 
     @Override

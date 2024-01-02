@@ -1,15 +1,12 @@
 package jipthechip.diabolism.potion;
 
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageSources;
-import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 
-public class MagicHarmStatusEffect extends StatusEffect {
+public class HarmStatusEffect extends ClientSyncedStatusEffect {
 
-    protected MagicHarmStatusEffect(StatusEffectCategory category, int color) {
+    protected HarmStatusEffect(StatusEffectCategory category, int color) {
         super(category, color);
     }
 

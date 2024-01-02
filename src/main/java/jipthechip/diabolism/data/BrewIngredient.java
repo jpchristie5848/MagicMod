@@ -39,4 +39,8 @@ public record BrewIngredient(int air, int fire, int water, int earth, int chaos,
         put(Items.WHEAT, new BrewIngredient(4, 0, 0, 2, 0, 0));
     }};
 
+    public static boolean isValidIngredient(Item item){
+        return mappings.containsKey(item);
+    }
+
 }

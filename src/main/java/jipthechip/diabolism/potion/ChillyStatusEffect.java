@@ -1,14 +1,14 @@
 package jipthechip.diabolism.potion;
 
+import jipthechip.diabolism.data.MagicElement;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.effect.StatusEffectInstance;
 
-public class ChillyStatusEffect extends ClientSyncedStatusEffect {
+public class ChillyStatusEffect extends AbstractElementalStatusEffect {
 
     protected ChillyStatusEffect(StatusEffectCategory category, int color) {
-        super(category, color);
+        super(category, color, MagicElement.ICE);
     }
 
     @Override
@@ -19,16 +19,16 @@ public class ChillyStatusEffect extends ClientSyncedStatusEffect {
         entity.setVelocity(entity.getVelocity().getX() * (1-slowDownPercentage), entity.getVelocity().getY(), entity.getVelocity().getZ()*(1-slowDownPercentage));
 
 
-        if(!entity.getWorld().isClient && entity.hasStatusEffect(DiabolismPotions.WET_STATUS_EFFECT)){
+        if(!entity.getWorld().isClient && entity.hasStatusEffect(DiabolismEffects.ELEMENTAL.get("wet"))){
 
             double random = Math.random();
             double freezeProbability = amplifier/10000.0f;
 
-            if(random < freezeProbability && ! entity.hasStatusEffect(DiabolismPotions.FROZEN_STATUS_EFFECT)){
-                entity.removeStatusEffect(DiabolismPotions.WET_STATUS_EFFECT);
-                entity.removeStatusEffect(DiabolismPotions.CHILLY_STATUS_EFFECT);
-                entity.addStatusEffect(new StatusEffectInstance(DiabolismPotions.FROZEN_STATUS_EFFECT, 200));
-                entity.addStatusEffect(new StatusEffectInstance(DiabolismPotions.MAGIC_HARM_STATUS_EFFECT, 200, amplifier, false, false));
+            if(random < freezeProbability && ! entity.hasStatusEffect(DiabolismEffects.ELEMENTAL.get("frozen"))){
+                entity.removeStatusEffect(DiabolismEffects.ELEMENTAL.get("wet"));
+                entity.removeStatusEffect(DiabolismEffects.ELEMENTAL.get("chilly"));
+                entity.addStatusEffect(new StatusEffectInstance(DiabolismEffects.ELEMENTAL.get("frozen"), 200));
+                entity.addStatusEffect(new StatusEffectInstance(DiabolismEffects.ELEMENTAL.get("harm"), 200, amplifier, false, false));
             }
         }
     }

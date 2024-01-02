@@ -1,5 +1,6 @@
 package jipthechip.diabolism.potion;
 
+import jipthechip.diabolism.data.MagicElement;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
@@ -10,10 +11,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 
-public class WetStatusEffect extends ClientSyncedStatusEffect {
+public class WetStatusEffect extends AbstractElementalStatusEffect {
 
     protected WetStatusEffect(StatusEffectCategory category, int color) {
-        super(category, color);
+        super(category, color, MagicElement.WATER);
     }
 
     @Override

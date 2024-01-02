@@ -1,5 +1,6 @@
 package jipthechip.diabolism.potion;
 
+import jipthechip.diabolism.data.MagicElement;
 import jipthechip.diabolism.entities.ProjectileSpellEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -11,12 +12,12 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
-public class GustStatusEffect extends StatusEffect {
+public class GustStatusEffect extends AbstractElementalStatusEffect {
 
     private Vec3d effectVelocity;
 
     protected GustStatusEffect(StatusEffectCategory category, int color) {
-        super(category, color);
+        super(category, color, MagicElement.AIR);
     }
 
     @Override
@@ -48,29 +49,29 @@ public class GustStatusEffect extends StatusEffect {
         }
     }
 
-    @Override
-    public void applyUpdateEffect(LivingEntity entity, int amplifier) {
-
-        if(effectVelocity == null){
-            System.out.println("effect velocity is null");
-        }
-        if(effectVelocity != null){
-
-            double entityVelX = entity.getVelocity().getX();
-            double effectVelX = effectVelocity.getX();
-
-            if((entityVelX < effectVelX && effectVelX > 0) || (entityVelX > effectVelX && effectVelX < 0)){
-                entity.addVelocity(effectVelocity.getX() * 0.1, 0,0);
-            }
-
-            double entityVelZ = entity.getVelocity().getZ();
-            double effectVelZ = effectVelocity.getZ();
-
-            if((entityVelZ < effectVelZ && effectVelZ > 0) || (entityVelZ > effectVelZ && effectVelZ < 0)){
-                entity.addVelocity(0, 0,effectVelocity.getZ() * 0.1);
-            }
-        }
-    }
+//    @Override
+//    public void applyUpdateEffect(LivingEntity entity, int amplifier) {
+//
+//        if(effectVelocity == null){
+//            System.out.println("effect velocity is null");
+//        }
+//        if(effectVelocity != null){
+//
+//            double entityVelX = entity.getVelocity().getX();
+//            double effectVelX = effectVelocity.getX();
+//
+//            if((entityVelX < effectVelX && effectVelX > 0) || (entityVelX > effectVelX && effectVelX < 0)){
+//                entity.addVelocity(effectVelocity.getX() * 0.1, 0,0);
+//            }
+//
+//            double entityVelZ = entity.getVelocity().getZ();
+//            double effectVelZ = effectVelocity.getZ();
+//
+//            if((entityVelZ < effectVelZ && effectVelZ > 0) || (entityVelZ > effectVelZ && effectVelZ < 0)){
+//                entity.addVelocity(0, 0,effectVelocity.getZ() * 0.1);
+//            }
+//        }
+//    }
 
     @Override
     public boolean isInstant() {

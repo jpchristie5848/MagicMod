@@ -22,8 +22,6 @@ public class FluidPumpBlockRenderLayer extends GeoRenderLayer<FluidPump> {
     @Override
     public void render(MatrixStack poseStack, FluidPump animatable, BakedGeoModel bakedModel, RenderLayer renderType, VertexConsumerProvider bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
 
-        poseStack.translate(0.5,0,0.5);
-
         FluidPipeCenterBlockModel centerModel = new FluidPipeCenterBlockModel();
         Identifier centerModelResource = centerModel.getModelResource(animatable);
 
@@ -31,10 +29,12 @@ public class FluidPumpBlockRenderLayer extends GeoRenderLayer<FluidPump> {
 
         RenderLayer centerPipeRenderLayer = RenderLayer.getEntityCutout(centerModel.getTextureResource(animatable));
 
-        // render pipe center (incorrect texture getting applied)
+        // render pipe center
         getRenderer().reRender(centerModel.getBakedModel(centerModelResource), poseStack, bufferSource, animatable, centerPipeRenderLayer,
                 bufferSource.getBuffer(centerPipeRenderLayer), partialTick, packedLight, OverlayTexture.DEFAULT_UV,
                 1, 1, 1, 1);
+
+        //poseStack.translate(0.5,0,0.5);
 
         FluidOutputPipeBlockModel outputPipeModel = new FluidOutputPipeBlockModel();
         Identifier pipeModelResource = outputPipeModel.getModelResource(animatable);

@@ -1,13 +1,14 @@
 package jipthechip.diabolism.packets;
 
 import jipthechip.diabolism.Utils.DataUtils;
+import jipthechip.diabolism.data.MagickaFluid;
 import jipthechip.diabolism.data.Yeast;
 import jipthechip.diabolism.entities.ProjectileSpellEntity;
 import jipthechip.diabolism.Utils.IMagicProperties;
 import jipthechip.diabolism.entities.blockentities.*;
 import jipthechip.diabolism.data.Fluid;
 import jipthechip.diabolism.potion.ClientSyncedStatusEffect;
-import jipthechip.diabolism.potion.DiabolismPotions;
+import jipthechip.diabolism.potion.DiabolismEffects;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -16,7 +17,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.GoalSelector;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.Item;
@@ -63,6 +63,7 @@ public class DiabolismPackets {
     public static final Identifier ADD_ENTITY_EFFECTS_ON_CLIENT = new Identifier("diabolism", "add_entity_effects_on_client");
 
     public static final Identifier REMOVE_ENTITY_EFFECT_ON_CLIENT = new Identifier("diabolism", "remove_entity_effect_on_client");
+    public static final Identifier SYNC_MAGICKA_CONSUMER_W_CLIENT = new Identifier("diabolism", "sync_magicka_consumer_w_client");
 
     public static void registerPacketReceivers(){
 
@@ -201,7 +202,20 @@ public class DiabolismPackets {
            int entityId = buf.readInt();
            String effectKey = buf.readString();
 
-           removeEntityEffectOnClient(entityId, DiabolismPotions.STATUS_EFFECT_MAP.get(effectKey), client);
+           removeEntityEffectOnClient(entityId, DiabolismEffects.CLIENT_SYNCED.get(effectKey), client);
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(SYNC_MAGICKA_CONSUMER_W_CLIENT, (client, handler, buf, responseSender) ->{
+            int numFluids = buf.readInt();
+            List<MagickaFluid> fluids = new ArrayList<>();
+
+            for(int i = 0; i < numFluids; i++){
+                fluids.add((MagickaFluid) DataUtils.DeserializeFromString(buf.readString()));
+            }
+            int progress = buf.readInt();
+            BlockPos pos = buf.readBlockPos();
+
+            syncMagickaConsumerWClient(fluids, progress, pos, client);
         });
     }
 
@@ -308,12 +322,24 @@ public class DiabolismPackets {
          });
     }
 
-    private static void removeEntityEffectOnClient(int entityId, StatusEffect effect, MinecraftClient client){
+    private static void removeEntityEffectOnClient(int entityId, ClientSyncedStatusEffect effect, MinecraftClient client){
         client.execute(()->{
             Entity entity = client.world.getEntityById(entityId);
             if(entity instanceof LivingEntity livingEntity){
                 System.out.println("removed status effect "+effect.getName()+" on entity "+entityId);
                 livingEntity.removeStatusEffect(effect);
+            }
+        });
+    }
+
+    private static void syncMagickaConsumerWClient(List<MagickaFluid> fluids, int progress, BlockPos pos, MinecraftClient client){
+        //System.out.println("syncing magicka consumer w client");
+        client.execute(()->{
+            BlockEntity blockEntity = client.world.getBlockEntity(pos);
+            if(blockEntity instanceof AbstractMagickaConsumer consumer){
+                consumer.setFluids(fluids);
+                consumer.setProgress(progress);
+                System.out.println("on client progress is now: "+consumer.getProgress());
             }
         });
     }

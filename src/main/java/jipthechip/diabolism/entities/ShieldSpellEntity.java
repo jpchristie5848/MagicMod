@@ -43,7 +43,7 @@ public class ShieldSpellEntity extends Entity{
         super.tick();
 
         System.out.println("Attempting to get player with entityid: "+playerEntityId);
-        Entity playerEntity = this.world.getEntityById(playerEntityId);
+        Entity playerEntity = this.getWorld().getEntityById(playerEntityId);
 
         if(playerEntity == null){
             System.out.println("player entity not found, killing shield spell entity");
@@ -62,23 +62,23 @@ public class ShieldSpellEntity extends Entity{
         Vec3d downVector = leftVector.crossProduct(lookVector);
         Vec3d upVector = downVector.multiply(-1);
 
-        PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) world).spawnParticles(player,
+        PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) getWorld()).spawnParticles(player,
                 ParticleTypes.ELECTRIC_SPARK, true, leftVector.x+upVector.x+newPos.x, leftVector.y+upVector.y+newPos.y+1, leftVector.z+upVector.z+newPos.z, 1,
                 0, 0, 0, 0));
 
-        PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) world).spawnParticles(player,
+        PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) getWorld()).spawnParticles(player,
                 ParticleTypes.ELECTRIC_SPARK, true, leftVector.x+downVector.x+newPos.x, leftVector.y+downVector.y+newPos.y+1, leftVector.z+downVector.z+newPos.z, 1,
                 0, 0, 0, 0));
 
-        PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) world).spawnParticles(player,
+        PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) getWorld()).spawnParticles(player,
                 ParticleTypes.ELECTRIC_SPARK, true, rightVector.x+upVector.x+newPos.x, rightVector.y+upVector.y+newPos.y+1, rightVector.z+upVector.z+newPos.z, 1,
                 0, 0, 0, 0));
 
-        PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) world).spawnParticles(player,
+        PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) getWorld()).spawnParticles(player,
                 ParticleTypes.ELECTRIC_SPARK, true, rightVector.x+downVector.x+newPos.x, rightVector.y+downVector.y+newPos.y+1, rightVector.z+downVector.z+newPos.z, 1,
                 0, 0, 0, 0));
 
-        PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) world).spawnParticles(player,
+        PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) getWorld()).spawnParticles(player,
                 ParticleTypes.ELECTRIC_SPARK, true, newPos.x, newPos.y+1, newPos.z, 1,
                 0, 0, 0, 0));
 

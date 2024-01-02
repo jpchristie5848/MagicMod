@@ -3,13 +3,13 @@ package jipthechip.diabolism.items;
 import jipthechip.diabolism.ItemGroups;
 import jipthechip.diabolism.Utils.DataUtils;
 import jipthechip.diabolism.blocks.DiabolismBlocks;
-import jipthechip.diabolism.data.Fluid;
-import jipthechip.diabolism.data.Yeast;
+import jipthechip.diabolism.data.*;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.FoodComponents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -38,6 +38,18 @@ public class DiabolismItems {
 
     public static final Item MYSTICAL_YEAST = new MysticalYeast(new FabricItemSettings().maxCount(1));
 
+    public static final Item SPELL_TEMPLATE = new SpellTemplateItem(new FabricItemSettings().maxCount(64));
+
+    public static final Item MAGICKA_CRYSTAL = new MagickaCrystalItem(new FabricItemSettings().maxCount(64));
+
+    public static final Item SPELL_MODIFIER = new SpellModifierItem(new FabricItemSettings().maxCount(1));
+
+    public static final Item WIZWICH = new WizwichItem(new FabricItemSettings().maxCount(1).food(FoodComponents.COOKIE));
+
+    public static final Item SPELL_GLYPH = new SpellGlyph(new FabricItemSettings().maxCount(1));
+
+
+
     public static final BlockItem POWDER_COVERED_POLISHED_BLACKSTONE_BLOCKITEM = new PowderCoveredPolishedBlackstoneBlockItem(DiabolismBlocks.POWDER_COVERED_POLISHED_BLACKSTONE,
             new FabricItemSettings().maxCount(1));
 
@@ -59,8 +71,10 @@ public class DiabolismItems {
 
     public static final BlockItem FLUID_PIPE_BLOCKITEM = new BlockItem(DiabolismBlocks.FLUID_PIPE, new FabricItemSettings().maxCount(64));
 
-    public static final BlockItem FLUID_PUMP_BLOCKITEM = new BlockItem(DiabolismBlocks.FLUID_PUMP, new FabricItemSettings().maxCount(64));
+    public static final BlockItem FLUID_PUMP_BLOCKITEM = new FluidPumpBlockItem(DiabolismBlocks.FLUID_PUMP, new FabricItemSettings().maxCount(64));
     public static final BlockItem MAGIC_FERMENTER_BLOCKITEM = new MagicFermenterBlockItem(DiabolismBlocks.MAGIC_FERMENTER, new FabricItemSettings().maxCount(64));
+
+    public static final BlockItem ARCANE_ALTAR_BLOCKITEM = new ArcaneAltarBlockItem(DiabolismBlocks.ARCANE_ALTAR, new FabricItemSettings().maxCount(64));
 
 
     public static void registerItems(){
@@ -75,6 +89,11 @@ public class DiabolismItems {
         Registry.register(Registries.ITEM, new Identifier("diabolism", "star_shard"), STAR_SHARD);
         Registry.register(Registries.ITEM, new Identifier("diabolism", "brew_fluid_bucket"), BREW_FLUID_BUCKET);
         Registry.register(Registries.ITEM, new Identifier("diabolism", "mystical_yeast"), MYSTICAL_YEAST);
+        Registry.register(Registries.ITEM, new Identifier("diabolism", "spell_template"), SPELL_TEMPLATE);
+        Registry.register(Registries.ITEM, new Identifier("diabolism", "magicka_crystal"), MAGICKA_CRYSTAL);
+        Registry.register(Registries.ITEM, new Identifier("diabolism", "spell_modifier"), SPELL_MODIFIER);
+        Registry.register(Registries.ITEM, new Identifier("diabolism", "wizwich"), WIZWICH);
+        Registry.register(Registries.ITEM, new Identifier("diabolism", "spell_glyph"), SPELL_GLYPH);
 
 
         Registry.register(Registries.ITEM, new Identifier("diabolism", "powder_covered_polished_blackstone"), POWDER_COVERED_POLISHED_BLACKSTONE_BLOCKITEM);
@@ -88,8 +107,11 @@ public class DiabolismItems {
         Registry.register(Registries.ITEM, new Identifier("diabolism", "fluid_pipe"), FLUID_PIPE_BLOCKITEM);
         Registry.register(Registries.ITEM, new Identifier("diabolism", "fluid_pump"), FLUID_PUMP_BLOCKITEM);
         Registry.register(Registries.ITEM, new Identifier("diabolism", "magic_fermenter"), MAGIC_FERMENTER_BLOCKITEM);
+        Registry.register(Registries.ITEM, new Identifier("diabolism", "arcane_altar"), ARCANE_ALTAR_BLOCKITEM);
 
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.DIABOLISM_ITEM_GROUP).register(entries -> {
+
+
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.DIABOLISM_ITEM_GROUP_KEY).register(entries -> {
             entries.add(RUNE_POWDER);
             entries.add(BASIC_WAND);
             entries.add(VOLATILE_MIXTURE);
@@ -102,6 +124,7 @@ public class DiabolismItems {
             entries.add(BREW_FLUID_BUCKET);
             // int air, int fire, int water, int earth, int chaos, int order
 
+            // YEAST
 
             ItemStack weakAirYeastStack = new ItemStack(MYSTICAL_YEAST);
             Yeast weakAirYeast = Yeast.generateLowTierYeast(0,1, 1.1f);
@@ -123,6 +146,90 @@ public class DiabolismItems {
             DataUtils.writeObjectToItemNbt(weakEarthYeastStack, weakEarthYeast);
             entries.add(weakEarthYeastStack);
 
+            // CRYSTALS
+
+            ItemStack airCrystalStack = new ItemStack(MAGICKA_CRYSTAL);
+            MagickaCrystal airCrystal = new MagickaCrystal(MagicElement.AIR, 1);
+            DataUtils.writeObjectToItemNbt(airCrystalStack, airCrystal);
+            entries.add(airCrystalStack);
+            ItemStack airCrystalStack1 = new ItemStack(MAGICKA_CRYSTAL);
+            MagickaCrystal airCrystal1 = new MagickaCrystal(MagicElement.AIR, 2);
+            DataUtils.writeObjectToItemNbt(airCrystalStack1, airCrystal1);
+            entries.add(airCrystalStack1);
+            ItemStack airCrystalStack2 = new ItemStack(MAGICKA_CRYSTAL);
+            MagickaCrystal airCrystal2 = new MagickaCrystal(MagicElement.AIR, 3);
+            DataUtils.writeObjectToItemNbt(airCrystalStack2, airCrystal2);
+            entries.add(airCrystalStack2);
+
+            ItemStack fireCrystalStack = new ItemStack(MAGICKA_CRYSTAL);
+            MagickaCrystal fireCrystal = new MagickaCrystal(MagicElement.FIRE, 1);
+            DataUtils.writeObjectToItemNbt(fireCrystalStack, fireCrystal);
+            entries.add(fireCrystalStack);
+
+            ItemStack waterCrystalStack = new ItemStack(MAGICKA_CRYSTAL);
+            MagickaCrystal waterCrystal = new MagickaCrystal(MagicElement.WATER, 1);
+            DataUtils.writeObjectToItemNbt(waterCrystalStack, waterCrystal);
+            entries.add(waterCrystalStack);
+
+            ItemStack earthCrystalStack = new ItemStack(MAGICKA_CRYSTAL);
+            MagickaCrystal earthCrystal = new MagickaCrystal(MagicElement.EARTH, 1);
+            DataUtils.writeObjectToItemNbt(earthCrystalStack, earthCrystal);
+            entries.add(earthCrystalStack);
+
+            // TEMPLATES
+
+            ItemStack spellTemplateSelfStack = new ItemStack(SPELL_TEMPLATE);
+            SpellTemplate spellTemplateSelf = new SpellTemplate(SpellType.SELF);
+            DataUtils.writeObjectToItemNbt(spellTemplateSelfStack, spellTemplateSelf);
+            entries.add(spellTemplateSelfStack);
+
+            ItemStack spellTemplateProjectileStack = new ItemStack(SPELL_TEMPLATE);
+            SpellTemplate spellTemplateProjectile = new SpellTemplate(SpellType.PROJECTILE);
+            DataUtils.writeObjectToItemNbt(spellTemplateProjectileStack, spellTemplateProjectile);
+            entries.add(spellTemplateProjectileStack);
+
+            // MODIFIERS
+
+            ItemStack basicModifierStack = new ItemStack(SPELL_MODIFIER);
+            SpellModifier basicSpellModifier = new SpellModifier(0,0,0);
+            DataUtils.writeObjectToItemNbt(basicModifierStack, basicSpellModifier);
+            entries.add(basicModifierStack);
+
+            ItemStack preciseModifierStack = new ItemStack(SPELL_MODIFIER);
+            SpellModifier preciseSpellModifier = new SpellModifier(0,1,0);
+            DataUtils.writeObjectToItemNbt(preciseModifierStack, preciseSpellModifier);
+            entries.add(preciseModifierStack);
+
+            ItemStack preciseModifierStack2 = new ItemStack(SPELL_MODIFIER);
+            SpellModifier preciseSpellModifier2 = new SpellModifier(0,3,0);
+            DataUtils.writeObjectToItemNbt(preciseModifierStack2, preciseSpellModifier2);
+            entries.add(preciseModifierStack2);
+
+            ItemStack spreadModifierStack = new ItemStack(SPELL_MODIFIER);
+            SpellModifier spreadSpellModifier = new SpellModifier(0,0,1);
+            DataUtils.writeObjectToItemNbt(spreadModifierStack, spreadSpellModifier);
+            entries.add(spreadModifierStack);
+
+            ItemStack multiModifierStack = new ItemStack(SPELL_MODIFIER);
+            SpellModifier multiSpellModifier = new SpellModifier(1, 0,0);
+            DataUtils.writeObjectToItemNbt(multiModifierStack, multiSpellModifier);
+            entries.add(multiModifierStack);
+
+            ItemStack allModifierStack = new ItemStack(SPELL_MODIFIER);
+            SpellModifier allSpellModifier = new SpellModifier(3, 3,3);
+            DataUtils.writeObjectToItemNbt(allModifierStack, allSpellModifier);
+            entries.add(allModifierStack);
+
+            ItemStack wizwichStack = new ItemStack(WIZWICH);
+            Wizwich wizwich = new Wizwich("lgbtq");
+            DataUtils.writeObjectToItemNbt(wizwichStack, wizwich);
+            entries.add(wizwichStack);
+
+            ItemStack wizwichExtremeStack = new ItemStack(WIZWICH);
+            Wizwich wizwichExtreme = new Wizwich("lgbtqlgbtqlgbtqlgbtqlgbtqlgbtqlgbtqlgbtqlgbtqlgbtqlgbtqlgbtq");
+            DataUtils.writeObjectToItemNbt(wizwichExtremeStack, wizwichExtreme);
+            entries.add(wizwichExtremeStack);
+
             entries.add(POWDER_COVERED_POLISHED_BLACKSTONE_BLOCKITEM);
             entries.add(DOUBLE_POLISHED_BLACKSTONE_BLOCKITEM);
             entries.add(RUNED_DOUBLE_POLISHED_BLACKSTONE_BLOCKITEM);
@@ -134,6 +241,7 @@ public class DiabolismItems {
             entries.add(FLUID_PIPE_BLOCKITEM);
             entries.add(FLUID_PUMP_BLOCKITEM);
             entries.add(MAGIC_FERMENTER_BLOCKITEM);
+            entries.add(ARCANE_ALTAR_BLOCKITEM);
         });
     }
 
@@ -159,6 +267,18 @@ public class DiabolismItems {
             }
             return 0xFFFFFFFF;
         }, MYSTICAL_YEAST);
+
+//        ColorProviderRegistry.ITEM.register((stack, tintIndex)->{
+//            MagickaCrystal magickaCrystal = DataUtils.readObjectFromItemNbt(stack, MagickaCrystal.class);
+//            if(magickaCrystal != null){
+//                return Spell.ELEMENT_COLORS[magickaCrystal.getElement().ordinal()];
+//            }
+//            return 0xFFFFFFFF;
+//        }, MAGICKA_CRYSTAL);
+    }
+
+    private static void registerItemModelPredicateProviders(){
+
     }
 
     public static void initializeClient(){

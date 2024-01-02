@@ -32,6 +32,8 @@ public class DiabolismBlocks {
 
     public static final Block MAGIC_FERMENTER = new MagicFermenterBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).nonOpaque());
 
+    public static final Block ARCANE_ALTAR = new ArcaneAltarBlock(FabricBlockSettings.copyOf(Blocks.AMETHYST_BLOCK).nonOpaque());
+
     public static void initializeClient(){
 
         BlockRenderLayerMap.INSTANCE.putBlock(DiabolismBlocks.STARTER_CRYSTAL, RenderLayer.getTranslucent());
@@ -44,6 +46,7 @@ public class DiabolismBlocks {
         BlockRenderLayerMap.INSTANCE.putBlock(DiabolismBlocks.FLUID_PIPE, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(DiabolismBlocks.FLUID_PUMP, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(DiabolismBlocks.MAGIC_FERMENTER, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(DiabolismBlocks.ARCANE_ALTAR, RenderLayer.getCutout());
     }
 
     public static void registerBlocks(){
@@ -60,6 +63,7 @@ public class DiabolismBlocks {
         Registry.register(Registries.BLOCK, new Identifier("diabolism", "fluid_pipe"), FLUID_PIPE);
         Registry.register(Registries.BLOCK, new Identifier("diabolism", "fluid_pump"), FLUID_PUMP);
         Registry.register(Registries.BLOCK, new Identifier("diabolism", "magic_fermenter"), MAGIC_FERMENTER);
+        Registry.register(Registries.BLOCK, new Identifier("diabolism", "arcane_altar"), ARCANE_ALTAR);
     }
 
     private static <J extends Property<T>, T extends Comparable<T>> ToIntFunction<BlockState> createLightLevelFromBlockState(J property, int litLevel) {

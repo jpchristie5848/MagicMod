@@ -1,6 +1,6 @@
 package jipthechip.diabolism.packets;
 
-import jipthechip.diabolism.potion.DiabolismPotions;
+import jipthechip.diabolism.potion.DiabolismEffects;
 import net.minecraft.entity.effect.StatusEffectInstance;
 
 import java.io.Serializable;
@@ -24,6 +24,6 @@ public class StatusEffectInstanceData implements Serializable {
     }
 
     public StatusEffectInstance createFromData(){
-        return new StatusEffectInstance(DiabolismPotions.STATUS_EFFECT_MAP.get(effectName), duration, amplifier, ambient, showParticles, showIcon);
+        return new StatusEffectInstance(DiabolismEffects.ELEMENTAL.get(effectName), duration, amplifier, ambient, showParticles, showIcon);
     }
 }

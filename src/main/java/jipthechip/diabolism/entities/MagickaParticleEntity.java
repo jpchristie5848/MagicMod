@@ -68,14 +68,14 @@ public class MagickaParticleEntity extends ParticleSpawningEntity{
             }
             BlockPos blockPos = this.getBlockPos();
 
-            path = BlockHelpers.BlockBFS(world, DiabolismBlocks.RUNED_DOUBLE_POLISHED_BLACKSTONE, DiabolismBlocks.CRYSTAL_ALTAR, blockPos, CAN_ADD_FLUID);
+            path = BlockHelpers.BlockBFS(getWorld(), DiabolismBlocks.RUNED_DOUBLE_POLISHED_BLACKSTONE, DiabolismBlocks.CRYSTAL_ALTAR, blockPos, CAN_ADD_FLUID);
 
             BlockPos containerPos = null;
             AbstractFluidContainer container = null;
 
             if(!path.isEmpty()){
                 containerPos = path.get(path.size()-1);
-                container = (AbstractFluidContainer) world.getBlockEntity(containerPos);
+                container = (AbstractFluidContainer) getWorld().getBlockEntity(containerPos);
             }
 
             FluidRenderData fluidToAdd = RenderDataMappings.Fluids.get(magickaType);
@@ -85,7 +85,7 @@ public class MagickaParticleEntity extends ParticleSpawningEntity{
                 this.kill();
             }else if (blockPos.equals(path.get(path.size()-2)) && passedBlockCenter(0.2f)){
                 container.addFluid(potency * 2, RenderDataMappings.Fluids.get(magickaType));
-                world.updateListeners(containerPos, world.getBlockState(containerPos), world.getBlockState(containerPos), Block.NOTIFY_LISTENERS);
+                getWorld().updateListeners(containerPos, getWorld().getBlockState(containerPos), getWorld().getBlockState(containerPos), Block.NOTIFY_LISTENERS);
                 this.kill();
             }else if (passedBlockCenter()){
                 Vec3d newVelocity = new Vec3d(path.get(1).getX()-blockPos.getX(), 0, path.get(1).getZ()-blockPos.getZ()).normalize().multiply(0.05);
@@ -136,14 +136,14 @@ public class MagickaParticleEntity extends ParticleSpawningEntity{
     @Override
     protected void playParticles(@Nullable PlayerEntity playerEntity) {
         //System.out.println("particle pos: "+this.getPos().toString());
-        if(!world.isClient() && RenderDataMappings.Fluids.get(magickaType) != null){
+        if(!getWorld().isClient() && RenderDataMappings.Fluids.get(magickaType) != null){
             int numParticles = potency / 5 + 1;
             for(int i = 0; i < numParticles; i++){
                 double xOffset = (Math.random() * 0.1)-0.05;
                 double yOffset = (Math.random() * 0.1)-0.05;
                 double zOffset = (Math.random() * 0.1)-0.05;
 
-                PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) world).spawnParticles(player,
+                PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) getWorld()).spawnParticles(player,
                         ColoredSpellParticleFactory.createData(RenderDataMappings.Fluids.get(magickaType).getColor(), (int)(Math.random()*8+2)), true, getPos().getX()+xOffset, getPos().getY()+yOffset, getPos().getZ()+zOffset, 1,
                         0, 0, 0, 0));
             }

@@ -45,7 +45,7 @@ public class Yeast implements Serializable {
         int elementIndex = MathUtils.getNthGreatestValue(getYieldMultipliers(), index+1);
         float weight = ((getYieldMultipliers()[elementIndex] - 1.0f)+0.3f)*1.5f;
 
-        Color elementColor = new Color(Fluid.ELEMENT_COLORS[elementIndex], true);
+        Color elementColor = new Color(Spell.ELEMENT_COLORS[elementIndex], true);
 
 
         return ImageUtils.getAvgColor(elementColor, new Color(0xFFffefc2, true), weight).getRGB();

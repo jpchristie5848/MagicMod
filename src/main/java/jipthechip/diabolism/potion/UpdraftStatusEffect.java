@@ -1,5 +1,6 @@
 package jipthechip.diabolism.potion;
 
+import jipthechip.diabolism.data.MagicElement;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
@@ -8,10 +9,10 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
-public class UpdraftStatusEffect extends StatusEffect {
+public class UpdraftStatusEffect extends AbstractElementalStatusEffect {
 
     protected UpdraftStatusEffect(StatusEffectCategory category, int color) {
-        super(category, color);
+        super(category, color, MagicElement.AIR);
 
     }
 

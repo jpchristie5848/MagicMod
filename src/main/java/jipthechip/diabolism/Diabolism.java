@@ -2,9 +2,10 @@ package jipthechip.diabolism;
 
 import jipthechip.diabolism.blocks.DiabolismBlocks;
 import jipthechip.diabolism.entities.DiabolismEntities;
+import jipthechip.diabolism.entities.blockentities.screen.DiabolismScreens;
 import jipthechip.diabolism.events.DiabolismEvents;
 import jipthechip.diabolism.items.DiabolismItems;
-import jipthechip.diabolism.potion.DiabolismPotions;
+import jipthechip.diabolism.potion.DiabolismEffects;
 import jipthechip.diabolism.packets.DiabolismPackets;
 import jipthechip.diabolism.particle.DiabolismParticles;
 import jipthechip.diabolism.recipe.DiabolismRecipes;
@@ -19,15 +20,17 @@ public class Diabolism implements ModInitializer {
     @Override
     public void onInitialize() {
         DiabolismBlocks.registerBlocks();
+        ItemGroups.registerItemGroups();
         DiabolismItems.registerItems();
         DiabolismPackets.registerPacketReceivers();
         DiabolismEvents.registerEvents();
         DiabolismEntities.registerEntities();
         DiabolismRecipes.registerRecipes();
-        DiabolismPotions.registerPotionEffects();
-        DiabolismPotions.registerPotions();
-        DiabolismPotions.registerPotionRecipes();
+        DiabolismEffects.registerPotionEffects();
+        DiabolismEffects.registerPotions();
+        DiabolismEffects.registerPotionRecipes();
         DiabolismParticles.registerParticles();
         DiabolismSounds.registerSounds();
+        DiabolismScreens.registerExtendedScreenHandlers();
     }
 }

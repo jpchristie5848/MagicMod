@@ -11,8 +11,12 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 
 public class DamageDurabilityRecipe extends ShapelessRecipe {
-    public DamageDurabilityRecipe(Identifier id, String group, ItemStack output, DefaultedList<Ingredient> input) {
-        super(id, group, CraftingRecipeCategory.MISC, output, input);
+
+
+    //(String group, CraftingRecipeCategory category, ItemStack result, DefaultedList<Ingredient> ingredients)
+
+    public DamageDurabilityRecipe(String group, ItemStack result, DefaultedList<Ingredient> input) {
+        super(group, CraftingRecipeCategory.MISC, result, input);
     }
 
     public DefaultedList<ItemStack> getRemainder(CraftingInventory inv){

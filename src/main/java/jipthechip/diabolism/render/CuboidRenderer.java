@@ -39,21 +39,6 @@ public class CuboidRenderer {
         float x1 = (float)from.getX(), y1 = (float)from.getY(), z1 = (float)from.getZ();
         float x2 = (float)to.getX(), y2 = (float)to.getY(), z2 = (float)to.getZ();
         Sprite sprite = texture.getSprite();
-
-//        float u1, u2, v1, v2;
-
-//        float minU, maxU, minV, maxV;
-//        minU = sprite.getMinU();
-//        maxU = sprite.getMaxU();
-//        minV = sprite.getMinV();
-//        maxV = sprite.getMaxV();
-//
-//        float u3, u4, v3, v4;
-//        u1 = minU; v1 = maxV;
-//        u2 = minU; v2 = minV;
-//        u3 = maxU; v3 = minV;
-//        u4 = maxU; v4 = maxV;
-
         
         int light1 = light & 0xFFFF;
         int light2 = light >> 16 & 0xFFFF;

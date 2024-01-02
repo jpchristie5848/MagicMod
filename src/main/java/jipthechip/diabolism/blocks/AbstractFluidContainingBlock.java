@@ -17,6 +17,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractFluidContainingBlock extends BlockWithEntity {
 
+    protected long lastInteractionTime = 0;
     protected AbstractFluidContainingBlock(Settings settings) {
         super(settings);
     }
@@ -126,6 +128,10 @@ public abstract class AbstractFluidContainingBlock extends BlockWithEntity {
                 }
             }
         }
+    }
+
+    protected boolean canInteract(){
+        return System.currentTimeMillis() - lastInteractionTime >= 500;
     }
 
 //    @Override

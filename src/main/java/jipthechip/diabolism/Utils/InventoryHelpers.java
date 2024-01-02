@@ -12,9 +12,12 @@ public class InventoryHelpers {
         int stackCount = stackInHand.getCount();
 
         if(stackCount >= amount){
+
+            ItemStack returnedStack = new ItemStack(stackInHand.getItem(), amount);
             stackInHand.setCount(stackCount - amount);
             player.setStackInHand(hand, stackInHand.getCount() > 0 ? stackInHand : ItemStack.EMPTY);
-            return new ItemStack(stackInHand.getItem(), amount);
+
+            return returnedStack;
         }
         return ItemStack.EMPTY;
     }
