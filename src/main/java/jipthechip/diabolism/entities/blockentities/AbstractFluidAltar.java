@@ -33,7 +33,7 @@ public abstract class AbstractFluidAltar extends AbstractFluidContainer  impleme
     private Identifier storedItem;
 
     public AbstractFluidAltar(BlockEntityType<?> type, BlockPos pos, BlockState state, int capacity, BlockEntityRecipe[] recipes) {
-        super(type, pos, state, capacity, true);
+        super(type, pos, state, capacity, true, null);
         this.recipes = recipes;
     }
 
@@ -146,7 +146,7 @@ public abstract class AbstractFluidAltar extends AbstractFluidContainer  impleme
 
     public List<BlockPos> getConnectedEntities(){ return connectedEntities; }
 
-    public void syncWithServer(){
-
-    }
+//    public void syncWithServer(){
+//
+//    }
 }

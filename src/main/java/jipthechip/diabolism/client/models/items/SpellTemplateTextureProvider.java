@@ -1,14 +1,13 @@
 package jipthechip.diabolism.client.models.items;
 
 import jipthechip.diabolism.Utils.DataUtils;
-import jipthechip.diabolism.data.SpellTemplate;
+import jipthechip.diabolism.data.spell.SpellTemplate;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,9 +1,7 @@
 package jipthechip.diabolism.client.models.items;
 
 import jipthechip.diabolism.Utils.DataUtils;
-import jipthechip.diabolism.data.SpellModifier;
 import jipthechip.diabolism.data.Wizwich;
-import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.item.ItemStack;

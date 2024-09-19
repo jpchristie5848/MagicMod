@@ -4,19 +4,17 @@ package jipthechip.diabolism.entities;
 import jipthechip.diabolism.Utils.DataUtils;
 import jipthechip.diabolism.Utils.MathUtils;
 import jipthechip.diabolism.data.MagicElement;
-import jipthechip.diabolism.data.Spell;
-import jipthechip.diabolism.data.StatusEffectInstanceContainer;
+import jipthechip.diabolism.data.spell.Spell;
+import jipthechip.diabolism.effect.DiabolismEffects;
 import jipthechip.diabolism.mixin.EntityAccessor;
+import jipthechip.diabolism.packets.StatusEffectInstanceData;
 import jipthechip.diabolism.particle.ColoredSpellParticleFactory;
-import jipthechip.diabolism.potion.AbstractElementalStatusEffect;
-import jipthechip.diabolism.potion.ClientSyncedStatusEffect;
+import jipthechip.diabolism.effect.AbstractElementalStatusEffect;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
@@ -39,7 +37,7 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
     private float radius;
     private Vec3d velocity;
 
-    private List<StatusEffectInstance> spellEffects;
+    private List<StatusEffectInstanceData> spellEffects;
 
     private void init(){
         setNoGravity(true);
@@ -53,7 +51,7 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
         init();
     }
 
-    public ProjectileSpellEntity(EntityType<? extends PersistentProjectileEntity> type, double x, double y, double z, World world, Vec3d velocity, StatusEffectInstance... spellEffects) {
+    public ProjectileSpellEntity(EntityType<? extends PersistentProjectileEntity> type, double x, double y, double z, World world, Vec3d velocity, StatusEffectInstanceData... spellEffects) {
         super(type, x, y, z, world);
         this.spellEffects = Arrays.stream(spellEffects).toList();
         this.velocity = velocity;
@@ -70,7 +68,7 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
         int NumEffects = nbt.getInt("NumEffects");
         spellEffects = new ArrayList<>();
         for(int i = 0; i < NumEffects; i++){
-            spellEffects.add(((StatusEffectInstanceContainer)DataUtils.DeserializeFromString(nbt.getString("SpellEffect"+i))).createInstance());
+            spellEffects.add(((StatusEffectInstanceData)DataUtils.DeserializeFromString(nbt.getString("SpellEffect"+i))));
         }
     }
 
@@ -78,7 +76,7 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
     public NbtCompound writeNbt(NbtCompound nbt) {
         nbt.putInt("NumEffects", spellEffects.size());
         for(int i = 0; i < spellEffects.size(); i++){
-            nbt.putString("SpellEffect"+i,DataUtils.SerializeToString(new StatusEffectInstanceContainer(spellEffects.get(i))));
+            nbt.putString("SpellEffect"+i,DataUtils.SerializeToString(spellEffects.get(i)));
         }
         return super.writeNbt(nbt);
     }
@@ -92,8 +90,6 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
 
         super.tick();
 
-        //System.out.println("after super tick: "+this.getBoundingBox());
-
         if(!getWorld().isClient()) {
 
             if(this.isTouchingWater() || this.isInLava()){
@@ -103,33 +99,9 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
 
             if(this.velocity != null) {
                 super.setVelocity(this.velocity);
-                //System.out.println("Setting velocity to: "+this.velocity);
             }
 
-//            if(!synchedWithClient){
-//                PacketByteBuf buf = PacketByteBufs.create();
-//                buf.writeInt(getId());
-//                buf.writeFloat(radius);
-//                PlayerLookup.tracking(this).forEach(player -> {
-//                    ServerPlayNetworking.send(player, DiabolismPackets.SET_ENTITY_RADIUS_PACKET, buf);
-//                    System.out.println("sent packet to player "+player.getUuidAsString()+": "+getId()+"|"+radius);
-//                });
-//                synchedWithClient = true;
-//            }
-
             playParticles();
-
-
-//            for(int count = 0; count < 16; count++) {
-//                double x = getX() + (world.random.nextInt(3) - 1) / 4D;
-//                double y = getY() + 0.2F + (world.random.nextInt(3) - 1) / 4D;
-//                double z = getZ() + (world.random.nextInt(3) - 1) / 4D;
-//                double deltaX = (world.random.nextInt(3) - 1) * world.random.nextDouble();
-//                double deltaY = (world.random.nextInt(3) - 1) * world.random.nextDouble();
-//                double deltaZ = (world.random.nextInt(3) - 1) * world.random.nextDouble();
-//
-//                PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) world).spawnParticles(player, ParticleTypes.ELECTRIC_SPARK, true, x, y, z, 1, deltaX, deltaY, deltaZ, 0.1));
-//            }
         }
     }
 
@@ -168,8 +140,8 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
         List<Float> probabilities = new ArrayList<>();
         float probabilitiesTotal = 0;
 
-        for(StatusEffectInstance instance : spellEffects){
-            float probability = (instance.getAmplifier() + ((float)instance.getDuration() / 6))/2;
+        for(StatusEffectInstanceData data : spellEffects){
+            float probability = (data.getAmplifier() + ((float)data.getDuration() / 6))/2;
             probabilities.add(probability);
             probabilitiesTotal += probability;
         }
@@ -189,10 +161,15 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
                 break;
             }
         }
+        String effectKey = spellEffects.get(chosenEffectIndex).getEffectKey();
+        if(DiabolismEffects.MAP.get(effectKey) instanceof AbstractElementalStatusEffect elementalEffect){
+            MagicElement effectElement = elementalEffect.getElement();
 
-        MagicElement effectElement = ((AbstractElementalStatusEffect)spellEffects.get(chosenEffectIndex).getEffectType()).getElement();
-        // get color for chosen spell effect
-        return Spell.ELEMENT_COLORS[effectElement.ordinal()];
+            // get color for chosen spell effect
+            return Spell.ELEMENT_COLORS[effectElement.ordinal()];
+        }
+
+        return 0;
 
     }
 
@@ -204,8 +181,8 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
 
         float radius = 0;
 
-        for(StatusEffectInstance instance : spellEffects){
-            float effectTotal = (instance.getAmplifier() + ((float)instance.getDuration() / 6))/2;
+        for(StatusEffectInstanceData data : spellEffects){
+            float effectTotal = (data.getAmplifier() + ((float)data.getDuration() / 6))/2;
             radius += (effectTotal / 100)/2;
         }
         return Math.max(0.1f, radius);
@@ -230,8 +207,8 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
         if(entityHitResult.getEntity() instanceof LivingEntity target){
             target.timeUntilRegen = 0;
             if(spellEffects != null && !spellEffects.isEmpty()){
-                for(StatusEffectInstance instance : spellEffects){
-                    target.addStatusEffect(instance);
+                for(StatusEffectInstanceData data : spellEffects){
+                    target.addStatusEffect(data.createInstance());
                 }
             }
         }

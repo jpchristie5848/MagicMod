@@ -12,28 +12,12 @@ import software.bernie.geckolib.model.GeoModel;
 public class FluidOutputPipeBlockModel extends GeoModel<FluidPump> {
     @Override
     public Identifier getModelResource(FluidPump pump) {
-        World world = pump.getWorld();
-        BlockState state = world.getBlockState(pump.getPos());
-
-        Direction dir = null;
-
-        if(state.getBlock() == DiabolismBlocks.FLUID_PUMP){
-            for(Direction dir2 : Direction.values()){
-                if(state.get(AbstractOmniDirectionalBlock.DIRECTION_PROPERTIES.get(dir2))){
-                    dir = dir2;
-                    break;
-                }
-            }
-        }
-        if(dir == null){
-            return null;
-        }
-        return new Identifier("diabolism", "geo/pipe_side_"+dir.getName()+".geo.json");
+        return new Identifier("diabolism", "geo/pipe_side.geo.json");
     }
 
     @Override
     public Identifier getTextureResource(FluidPump animatable) {
-        return new Identifier("diabolism", "textures/block/pipe_side_geo.png");
+        return new Identifier("diabolism", "textures/block/fluid_pipe_side.png");
     }
 
     @Override

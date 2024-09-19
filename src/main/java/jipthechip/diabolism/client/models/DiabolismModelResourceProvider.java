@@ -4,7 +4,6 @@ import jipthechip.diabolism.client.models.items.MagickaCrystalModel;
 import jipthechip.diabolism.client.models.items.SpellModifierModel;
 import jipthechip.diabolism.client.models.items.SpellTemplateModel;
 import jipthechip.diabolism.client.models.items.WizwichModel;
-import jipthechip.diabolism.data.SpellTemplate;
 import net.fabricmc.fabric.api.client.model.ModelProviderContext;
 import net.fabricmc.fabric.api.client.model.ModelProviderException;
 import net.fabricmc.fabric.api.client.model.ModelResourceProvider;

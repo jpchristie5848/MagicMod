@@ -7,12 +7,12 @@ import software.bernie.geckolib.model.GeoModel;
 public class FluidPumpItemModel extends GeoModel<FluidPumpBlockItem> {
     @Override
     public Identifier getModelResource(FluidPumpBlockItem animatable) {
-        return new Identifier("diabolism", "geo/pipe_side_pump_north.geo.json");
+        return new Identifier("diabolism", "geo/fluid_pump_side.geo.json");
     }
 
     @Override
     public Identifier getTextureResource(FluidPumpBlockItem animatable) {
-        return new Identifier("diabolism", "textures/block/pipe_side_pump.png");
+        return new Identifier("diabolism", "textures/block/fluid_pump_side.png");
     }
 
     @Override

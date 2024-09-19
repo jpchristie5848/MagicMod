@@ -1,9 +1,9 @@
 package jipthechip.diabolism.client.models.items;
 
 import jipthechip.diabolism.Utils.DataUtils;
-import jipthechip.diabolism.data.MagicElement;
+import jipthechip.diabolism.data.MagicElementColors;
 import jipthechip.diabolism.data.MagickaCrystal;
-import jipthechip.diabolism.data.Spell;
+import jipthechip.diabolism.data.spell.Spell;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.item.ItemStack;
@@ -27,7 +27,7 @@ public class MagickaCrystalTextureProvider implements ItemLayerTextureProvider{
 
         if(crystal != null){
             int tier = crystal.getTier();
-            int color = Spell.ELEMENT_COLORS[crystal.getElement().ordinal()];
+            int color = MagicElementColors.MAP.get(crystal.getElement());
 
             if(tier >= 1){
                 textures.add(new ItemLayerTexture(LAYER_0.getSprite(), color, 0));

@@ -1,27 +1,21 @@
 package jipthechip.diabolism.entities.blockentities;
 
-import jipthechip.diabolism.Utils.DataUtils;
-import jipthechip.diabolism.data.Fluid;
+import jipthechip.diabolism.data.brewing.ExtendedMagickaConsumerData;
+import jipthechip.diabolism.data.brewing.Fluid;
 import jipthechip.diabolism.data.MagicElement;
 import jipthechip.diabolism.data.MagickaFluid;
-import jipthechip.diabolism.packets.DiabolismPackets;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.util.math.BlockPos;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 
-import java.util.ArrayList;
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 
-public class AbstractMagickaConsumer extends AbstractSyncedBlockEntity implements GeoAnimatable {
+public abstract class AbstractMagickaConsumer<T extends Serializable> extends AbstractSyncedBlockEntity<ExtendedMagickaConsumerData<T>> implements GeoBlockEntity {
 
     protected final int capacity;
 
@@ -31,22 +25,15 @@ public class AbstractMagickaConsumer extends AbstractSyncedBlockEntity implement
     protected int maxProgress = 100;
     protected long lastUpdate = 0;
 
-    public AbstractMagickaConsumer(BlockEntityType<?> type, BlockPos pos, BlockState state, int capacity) {
+    public AbstractMagickaConsumer(BlockEntityType<?> type, BlockPos pos, BlockState state, int capacity, T extendedData) {
         super(type, pos, state);
-        fluids = new ArrayList<>();
         this.capacity = capacity;
+        this.data = new ExtendedMagickaConsumerData<>(extendedData);
     }
-
-    public void setFluids(List<MagickaFluid> fluids){
-        this.fluids = fluids;
-    }
-
-    public List<MagickaFluid> getFluids(){return this.fluids;}
 
     public int addFluid(Fluid fluid, int amount){
 
         if(amount == 0){
-            System.out.println("amount is 0");
             return 0;
         }
 
@@ -62,7 +49,7 @@ public class AbstractMagickaConsumer extends AbstractSyncedBlockEntity implement
             return 0;
         }
 
-        float[] magickaContents = fluid.getMagickaContents();
+        HashMap<MagicElement, Float> magickaContents = fluid.getMagickaContents();
 
         if(magickaContents == null){
             System.out.println("magicka contents null");
@@ -72,8 +59,8 @@ public class AbstractMagickaConsumer extends AbstractSyncedBlockEntity implement
         int numMagickaTypes = 0;
 
         // get the total number of magical elements in the fluid
-        for(int i = 0; i < magickaContents.length; i++){
-            if(magickaContents[i]>0) numMagickaTypes++;
+        for(MagicElement element : magickaContents.keySet()){
+            if(magickaContents.getOrDefault(element, 0.0f)>0.0f) numMagickaTypes++;
         }
 
         if(numMagickaTypes == 0){
@@ -85,13 +72,13 @@ public class AbstractMagickaConsumer extends AbstractSyncedBlockEntity implement
         float amountForEachElement = Math.min(spaceLeft, amount)/numMagickaTypes;
 
         // convert the magical elements in the fluid to magicka fluid, and add it to the container
-        for(int i = 0; i < magickaContents.length; i++){
-            if(magickaContents[i] <= 0) continue;
-            System.out.println("magic contents of "+MagicElement.values()[i].name()+": "+MagicElement.values()[i]);
-            addElement(MagicElement.values()[i], amountForEachElement, magickaContents[i]/100.0f);
+        for(MagicElement element : magickaContents.keySet()){
+            float magickaContent = magickaContents.getOrDefault(element, 0.0f);
+            if(magickaContent <= 0) continue;
+            addElement(element, amountForEachElement, (magickaContent/100.0f)*numMagickaTypes);
         }
 
-        syncWithClient();
+        sync();
         markDirty();
 
         // amount to remove from the original container
@@ -104,72 +91,44 @@ public class AbstractMagickaConsumer extends AbstractSyncedBlockEntity implement
 
         // check if we already have magicka fluid for the given element
         int alreadyExistsIndex = -1;
-        for(int i = 0; i < fluids.size(); i++){
-            if(fluids.get(i).getElement() == element){
+        for(int i = 0; i < this.data.getFluids().size(); i++){
+            if(this.data.getFluid(i).getElement() == element){
                 alreadyExistsIndex = i;
                 break;
             }
         }
 
         if(alreadyExistsIndex == -1){
-            fluids.add(newFluid); // add new magicka fluid if one doesn't exist already
+            this.data.addFluid(newFluid); // add new magicka fluid if one doesn't exist already
         }else{
-            fluids.get(alreadyExistsIndex).addOther(newFluid); // add to existing magicka fluid if one already exists
+            this.data.getFluid(alreadyExistsIndex).addOther(newFluid); // add to existing magicka fluid if one already exists
         }
     }
 
     public float getRemainingSpace(){
         int totalOccupied = 0;
 
-        for(MagickaFluid magickaFluid : fluids){
+        for(MagickaFluid magickaFluid : this.data.getFluids()){
             totalOccupied += magickaFluid.getAmount();
         }
         return capacity - totalOccupied;
     }
 
-    @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
-        fluids = new ArrayList<>();
-        int NumFluids = nbt.getInt("NumFluids");
-        for(int i = 0; i < NumFluids; i++){
-            fluids.add((MagickaFluid) DataUtils.DeserializeFromString(nbt.getString("fluid_"+i)));
-        }
-        syncWithClient();
-    }
-
-    @Override
-    protected void writeNbt(NbtCompound nbt) {
-        nbt.putInt("NumFluids", fluids.size());
-        for(int i = 0; i < fluids.size(); i++){
-            nbt.putString("fluid_"+i, DataUtils.SerializeToString(fluids.get(i)));
-        }
-        super.writeNbt(nbt);
-    }
-
-    protected void syncWithClient(){
-        if(world != null && !world.isClient){
-            PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeInt(this.fluids.size());
-            for(int i = 0; i < this.fluids.size(); i++){
-                buf.writeString(DataUtils.SerializeToString(this.fluids.get(i)));
-            }
-            buf.writeInt(progress);
-
-            buf.writeBlockPos(getPos());
-            PlayerLookup.tracking(this).forEach(player -> ServerPlayNetworking.send(player, DiabolismPackets.SYNC_MAGICKA_CONSUMER_W_CLIENT, buf));
-        }
-    }
-
-    @Override
-    protected void syncWithServer() {
-
-    }
+//    @Override
+//    protected void syncWithServer() {
+//
+//    }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 
     }
+
+    protected abstract void incrementProgress();
+
+    protected abstract boolean canUpdate();
+
+    protected abstract void craft();
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
@@ -186,11 +145,11 @@ public class AbstractMagickaConsumer extends AbstractSyncedBlockEntity implement
     }
 
     public void setProgress(int progress) {
-        this.progress = progress;
+        data.setProgress(progress);
     }
 
     public int getProgress() {
-        return progress;
+        return data.getProgress();
     }
     public int getMaxProgress(){
         return maxProgress;

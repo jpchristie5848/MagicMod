@@ -21,7 +21,7 @@ import java.util.Arrays;
 public class FluidPipe extends AbstractFluidContainer{
 
     public FluidPipe(BlockPos pos, BlockState state) {
-        super(DiabolismEntities.FLUID_PIPE_BLOCKENTITY, pos, state, 50, false);
+        super(DiabolismEntities.FLUID_PIPE_BLOCKENTITY, pos, state, 50, false, null);
     }
 
     @Override

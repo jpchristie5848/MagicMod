@@ -1,7 +1,7 @@
 package jipthechip.diabolism.client.models.items;
 
 import jipthechip.diabolism.Utils.DataUtils;
-import jipthechip.diabolism.data.SpellModifier;
+import jipthechip.diabolism.data.spell.SpellModifier;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.SpriteIdentifier;
@@ -42,30 +42,24 @@ public class SpellModifierTextureProvider implements ItemLayerTextureProvider {
 
         SpellModifier spellModifier = DataUtils.readObjectFromItemNbt(stack, SpellModifier.class);
 
-        int multi = spellModifier.getMulti();
-        int precise = spellModifier.getPrecise();
-        int spread = spellModifier.getSpread();
+        int multi = spellModifier.multi();
+        int spread = spellModifier.spread();
 
-        if(precise >= 1){
-            textures.add(new ItemLayerTexture(PRECISE_1_ID.getSprite(), precise > 2 ? GOLD : precise > 1 ? SILVER : BRONZE, 1));
-            textures.add(new ItemLayerTexture(PRECISE_2_ID.getSprite(), precise > 2 ? GOLD : BROWN, 1));
-            textures.add(new ItemLayerTexture(PRECISE_3_ID.getSprite(), precise > 2 ? GOLD : precise > 1 ? SILVER : BRONZE, 1));
+        if(spread <= -1){
+            textures.add(new ItemLayerTexture(PRECISE_1_ID.getSprite(), spread < -2 ? GOLD : spread < -1 ? SILVER : BRONZE, 1));
+            textures.add(new ItemLayerTexture(PRECISE_2_ID.getSprite(), spread < -2 ? GOLD : BROWN, 1));
+            if(spread <= -2)
+                textures.add(new ItemLayerTexture(PRECISE_3_ID.getSprite(), spread < -2 ? GOLD : SILVER, 1));
         }
         if(spread >= 1){
-            int spreadLayerIndex = precise >= 1 ? 2 : 1;
-            textures.add(new ItemLayerTexture(SPREAD_1_ID.getSprite(), spread > 2 ? GOLD : spread > 1 ? SILVER : BRONZE, spreadLayerIndex));
-            if(spread >= 3){
-                textures.add(new ItemLayerTexture(SPREAD_2_ID.getSprite(), GOLD, spreadLayerIndex));
-            }
+            textures.add(new ItemLayerTexture(SPREAD_1_ID.getSprite(), spread > 2 ? GOLD : spread > 1 ? SILVER : BRONZE, 1));
+            if(spread >= 2)
+                textures.add(new ItemLayerTexture(SPREAD_2_ID.getSprite(), spread > 2 ? GOLD : SILVER, 1));
         }
         if(multi >= 1){
-            int multiLayerIndex = 1;
-            if(precise >= 1) multiLayerIndex++;
-            if(spread >= 1) multiLayerIndex++;
-
-            textures.add(new ItemLayerTexture(MULTI_1_ID.getSprite(), multi > 2 ? GOLD : multi > 1 ? SILVER : BRONZE, multiLayerIndex));
-            if(multi >= 3){
-                textures.add(new ItemLayerTexture(MULTI_2_ID.getSprite(), GOLD, multiLayerIndex));
+            textures.add(new ItemLayerTexture(MULTI_1_ID.getSprite(), multi > 2 ? GOLD : multi > 1 ? SILVER : BRONZE, 1));
+            if(multi >= 2){
+                textures.add(new ItemLayerTexture(MULTI_2_ID.getSprite(), spread > 2 ? GOLD : SILVER, 1));
             }
         }
 

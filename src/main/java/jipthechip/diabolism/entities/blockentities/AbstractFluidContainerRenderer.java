@@ -26,24 +26,23 @@ public abstract class AbstractFluidContainerRenderer<T extends AbstractFluidCont
     // @param overlay
     protected void renderFluid(Box[] fluidBoxes, T entity, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay){
 
-        matrices.translate(-0.5f, 0.0f, -0.5f);
-
         FluidRenderData fluid = entity.getFluidRenderData();
-        double minHeight = 16;
-        double maxHeight = 0;
+        int amount = entity.getFluidAmount();
 
-        for(Box box : fluidBoxes){
-            if(box.minY < minHeight){
-                minHeight = box.minY;
+        if(fluid != null && amount > 0){
+            matrices.translate(-0.5f, 0.0f, -0.5f);
+
+            double minHeight = 16;
+            double maxHeight = 0;
+
+            for(Box box : fluidBoxes){
+                if(box.minY < minHeight){
+                    minHeight = box.minY;
+                }
+                if(box.maxY > maxHeight){
+                    maxHeight = box.maxY;
+                }
             }
-            if(box.maxY > maxHeight){
-                maxHeight = box.maxY;
-            }
-        }
-
-
-        if(fluid != null){
-            int amount = entity.getFluidAmount();
             int color = entity.getFluidColor();
 
 //            System.out.println("churner pos: "+entity.getPos());

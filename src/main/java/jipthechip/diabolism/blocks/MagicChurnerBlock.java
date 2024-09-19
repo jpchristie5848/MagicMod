@@ -1,6 +1,6 @@
 package jipthechip.diabolism.blocks;
 
-import jipthechip.diabolism.data.BrewIngredient;
+import jipthechip.diabolism.data.brewing.BrewIngredient;
 import jipthechip.diabolism.entities.DiabolismEntities;
 import jipthechip.diabolism.entities.blockentities.MagicChurner;
 import net.minecraft.block.*;
@@ -53,7 +53,7 @@ public class MagicChurnerBlock extends AbstractFluidContainingBlock {
 
             Item itemInHand = stackInMainHand.getItem();
 
-            System.out.println("World is client: "+world.isClient);
+            //System.out.println("World is client: "+world.isClient);
 
             if(magicChurner != null){
 
@@ -85,7 +85,7 @@ public class MagicChurnerBlock extends AbstractFluidContainingBlock {
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         super.onBreak(world, pos, state, player);
         MagicChurner entity = (MagicChurner) world.getBlockEntity(pos);
-        if(entity != null && entity.getMixingProgress() < 100){
+        if(entity != null && entity.getData() != null && entity.getData().getExtendedData().getMixingProgress() < 100){
             for(ItemStack stack : entity.getItems()){
                 world.spawnEntity(new ItemEntity(world, pos.getX()+0.5f, pos.getY(), pos.getZ()+0.5f, stack));
             }

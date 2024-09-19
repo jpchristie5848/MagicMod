@@ -2,6 +2,7 @@ package jipthechip.diabolism.blocks;
 
 import jipthechip.diabolism.entities.DiabolismEntities;
 import jipthechip.diabolism.entities.blockentities.AbstractFluidContainer;
+import jipthechip.diabolism.entities.blockentities.AbstractMagickaConsumer;
 import jipthechip.diabolism.entities.blockentities.CrystalAltarBlockEntity;
 import jipthechip.diabolism.entities.blockentities.FluidPipe;
 import net.minecraft.block.*;
@@ -16,8 +17,7 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 
 public class FluidPipeBlock extends AbstractOmniDirectionalBlock {
 
@@ -46,7 +46,7 @@ public class FluidPipeBlock extends AbstractOmniDirectionalBlock {
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-        checkConnections(world, pos, state, AbstractFluidContainer.class, null);
+        checkConnections(world, pos, state, new ArrayList<>(Arrays.asList(AbstractFluidContainer.class, AbstractMagickaConsumer.class)), null);
     }
 
     @Nullable

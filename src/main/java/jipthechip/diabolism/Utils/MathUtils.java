@@ -3,11 +3,7 @@ package jipthechip.diabolism.Utils;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import static java.lang.Math.sin;
-import static net.minecraft.util.math.MathHelper.cos;
 
 public class MathUtils {
 
@@ -95,5 +91,10 @@ public class MathUtils {
             }
         }
         return newArr;
+    }
+
+    public static float roundToDecimalPlace(double value, int places) {
+        double scale = Math.pow(10, places);       // Scale factor to shift the decimal
+        return (float) (Math.round(value * scale) / scale);  // Round and then shift back
     }
 }

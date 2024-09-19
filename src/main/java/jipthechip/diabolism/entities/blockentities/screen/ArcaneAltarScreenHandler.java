@@ -1,5 +1,6 @@
 package jipthechip.diabolism.entities.blockentities.screen;
 
+import jipthechip.diabolism.Utils.PacketUtils;
 import jipthechip.diabolism.data.MagickaFluid;
 import jipthechip.diabolism.entities.blockentities.ArcaneAltar;
 import jipthechip.diabolism.items.DiabolismItems;
@@ -43,7 +44,6 @@ public class ArcaneAltarScreenHandler extends AbstractRecipeScreenHandler<Invent
     public ArcaneAltarScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, ArcaneAltar altar) {
         super(DiabolismScreens.ARCANE_ALTAR_SCREEN_HANDLER, syncId);
         this.inventory = inventory;
-        //this.propertyDelegate = delegate;
         this.altar = altar;
 
         inventory.onOpen(playerInventory.player);
@@ -51,10 +51,10 @@ public class ArcaneAltarScreenHandler extends AbstractRecipeScreenHandler<Invent
         int row;
         int col;
 
-        this.addSlot(new IngredientSlot(inventory, 0, 56, 16, DiabolismItems.MAGICKA_CRYSTAL));
-        this.addSlot(new IngredientSlot(inventory, 1, 8, 116, DiabolismItems.SPELL_TEMPLATE));
-        this.addSlot(new IngredientSlot(inventory, 2, 109, 116, DiabolismItems.SPELL_MODIFIER));
-        this.addSlot(new OutputSlot(inventory, 3, 148, 77));
+        this.addSlot(new IngredientSlot(altar, inventory, 0, 56, 16, DiabolismItems.MAGICKA_CRYSTAL));
+        this.addSlot(new IngredientSlot(altar, inventory, 1, 8, 116, DiabolismItems.SPELL_TEMPLATE));
+        this.addSlot(new IngredientSlot(altar, inventory, 2, 109, 116, DiabolismItems.SPELL_MODIFIER));
+        this.addSlot(new OutputSlot(altar, inventory, 3, 148, 77));
 
         for (row = 0; row < 3; ++row) {
             for (col = 0; col < 9; ++col) {
@@ -69,14 +69,11 @@ public class ArcaneAltarScreenHandler extends AbstractRecipeScreenHandler<Invent
 
     @Override
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
-        System.out.println("quickmove inv slot: "+invSlot);
         ItemStack newStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(invSlot);
-        if (slot != null && slot.hasStack()) {
+        if (slot.hasStack()) {
             ItemStack originalStack = slot.getStack();
             newStack = originalStack.copy();
-            System.out.println("inventory size: "+this.inventory.size());
-            System.out.println("slots size: "+this.slots.size());
             if (invSlot < this.inventory.size()) {
                 if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
                     return ItemStack.EMPTY;
@@ -91,12 +88,12 @@ public class ArcaneAltarScreenHandler extends AbstractRecipeScreenHandler<Invent
                 slot.markDirty();
             }
         }
-
+        //PacketUtils.syncBlockInventoryWithClient(altar.getWorld(), altar.getPos(), inventory);
+        altar.sync();
         return newStack;
     }
 
     public boolean isCrafting() {
-        System.out.println("progress : "+altar.getProgress());
         return altar.getProgress() > 0;
     }
 
@@ -105,10 +102,7 @@ public class ArcaneAltarScreenHandler extends AbstractRecipeScreenHandler<Invent
         int maxProgress = altar.getMaxProgress();
         int progressArrowSize = 22;
 
-        int scaledProgress = maxProgress != 0 && progress != 0 ? (progress * progressArrowSize) / maxProgress : 0;
-        System.out.println("scaled progress: "+scaledProgress);
-
-        return scaledProgress;
+        return maxProgress != 0 && progress != 0 ? (progress * progressArrowSize) / maxProgress : 0;
     }
 
     public List<MagickaFluid> getMagickaFluids(){
@@ -117,7 +111,7 @@ public class ArcaneAltarScreenHandler extends AbstractRecipeScreenHandler<Invent
         if(this.altar == null) {
             return Collections.emptyList();
         }
-        return this.altar.getFluids();
+        return this.altar.getData().getFluids();
     }
 
     public float getRemainingSpace(){
@@ -197,7 +191,6 @@ public class ArcaneAltarScreenHandler extends AbstractRecipeScreenHandler<Invent
 
     @Override
     public boolean canInsertIntoSlot(int index) {
-        System.out.println("can insert slot index: "+index);
         return index != 3;
     }
 }

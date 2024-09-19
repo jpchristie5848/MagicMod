@@ -1,7 +1,9 @@
 package jipthechip.diabolism.mixin;
 
 
-import jipthechip.diabolism.potion.DiabolismEffects;
+import jipthechip.diabolism.effect.ClientSyncedStatusEffect;
+import jipthechip.diabolism.effect.DiabolismEffects;
+import jipthechip.diabolism.effect.DiabolismStatusEffect;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,9 +17,11 @@ public class PlayerEntityModelMixin<T extends LivingEntity> {
     @Inject(method="setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at=@At("HEAD"))
     private void setThighScale(T livingEntity, float f, float g, float h, float i, float j, CallbackInfo ci){
 
-        if(livingEntity.hasStatusEffect(DiabolismEffects.RIGHT_TO_YOUR_THIGHS)){
+        DiabolismStatusEffect RightToYourThighsEffect = DiabolismEffects.MAP.get("right_to_your_thighs");
+
+        if(livingEntity.hasStatusEffect(RightToYourThighsEffect)){
             PlayerEntityModel<T> model = (PlayerEntityModel)(Object) this;
-            if(livingEntity.getStatusEffect(DiabolismEffects.RIGHT_TO_YOUR_THIGHS).isDurationBelow(1)){
+            if(livingEntity.getStatusEffect(RightToYourThighsEffect).isDurationBelow(1)){
 
                 model.leftLeg.xScale = 1.0f;
                 model.leftLeg.zScale = 1.0f;

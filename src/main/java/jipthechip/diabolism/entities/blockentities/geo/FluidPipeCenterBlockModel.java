@@ -14,7 +14,7 @@ public class FluidPipeCenterBlockModel extends GeoModel<FluidPump> {
 
     @Override
     public Identifier getTextureResource(FluidPump animatable) {
-        return new Identifier("diabolism", "textures/block/pipe_center_geo.png");
+        return new Identifier("diabolism", "textures/block/fluid_pipe_center.png");
     }
 
     @Override

@@ -1,10 +1,9 @@
 package jipthechip.diabolism.entities.blockentities.screen;
 
 import jipthechip.diabolism.data.MagickaFluid;
-import jipthechip.diabolism.data.Spell;
+import jipthechip.diabolism.data.spell.Spell;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.LiteralTextContent;
 import net.minecraft.text.MutableText;
@@ -108,9 +107,9 @@ public class ArcaneAltarScreen extends HandledScreen<ArcaneAltarScreenHandler> {
     }
 
     private void renderProgressArrow(DrawContext context, int x, int y){
-        if(handler.isCrafting() && handler.getScaledProgress() > 0){
-            System.out.println("scaled progress: "+handler.getScaledProgress());
-            context.drawTexture(TEXTURE, x+119, y+79, 176, 0, handler.getScaledProgress(), 11);
+        int scaledProgress = handler.getScaledProgress();
+        if(scaledProgress >= 0){
+            context.drawTexture(TEXTURE, x+119, y+79, 176, 0, scaledProgress, 11);
         }
     }
 

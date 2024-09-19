@@ -1,11 +1,15 @@
 package jipthechip.diabolism.Utils;
 
+import jipthechip.diabolism.data.MagicElement;
+import jipthechip.diabolism.data.brewing.Fluid;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 public class DataUtils {
 
@@ -67,14 +71,20 @@ public class DataUtils {
 
             return Base64.getEncoder().encodeToString(baos.toByteArray());
         }catch(IOException e){
-            System.out.println("error serializing object of class '"+o.getClass().toString()+"': "+e.getMessage());
+            System.out.println("error serializing object of class '"+o.getClass()+"': "+e.getMessage());
             return null;
         }
     }
 
     public static <T extends Serializable> void writeObjectToItemNbt(ItemStack stack, T obj){
         NbtCompound nbt = new NbtCompound();
-        nbt.putString(obj.getClass().getName().toLowerCase(), SerializeToString(obj));
+        String key;
+        if(obj instanceof Fluid){
+                key = Fluid.class.getName().toLowerCase();
+        }else{
+            key = obj.getClass().getName().toLowerCase();
+        }
+        nbt.putString(key, SerializeToString(obj));
         stack.setNbt(nbt);
     }
 
@@ -84,5 +94,19 @@ public class DataUtils {
             return objClass.cast(DeserializeFromString(nbt.getString(objClass.getName().toLowerCase())));
         }
         return null;
+    }
+
+    public static String getMapString(HashMap<?, ?> map){
+        if(map == null) return "{}";
+        return "{"+map.entrySet().stream().map(entry -> {
+            try{
+                String key = entry.getKey() != null ? entry.getKey().toString() : "null";
+                String value = entry.getValue() != null ? entry.getValue().toString() : "null";
+                return "(" + key + ", " + value + ")";
+            }catch(Exception e){
+                System.out.println("Failed to convert HashMap entry to string: "+e.getMessage());
+                return "(Invalid Entry)";
+            }
+        }).collect(Collectors.joining(", "))+"}";
     }
 }

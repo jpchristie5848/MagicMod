@@ -6,7 +6,8 @@ import jipthechip.diabolism.Utils.MathUtils;
 import jipthechip.diabolism.entities.DiabolismEntities;
 import jipthechip.diabolism.entities.ShieldSpellEntity;
 import jipthechip.diabolism.packets.DiabolismPackets;
-import jipthechip.diabolism.potion.DiabolismEffects;
+import jipthechip.diabolism.effect.DiabolismEffects;
+import jipthechip.diabolism.packets.EntitySyncPackets;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.entity.Entity;
@@ -26,6 +27,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -63,14 +65,15 @@ public abstract class LivingEntityMixin extends Entity implements IMagicProperti
 
         System.out.println(source.getType());
 
-        if(this.hasStatusEffect(DiabolismEffects.ELEMENTAL.get("brokenbones")) && isPhysicalDamageSource(source)){
-            StatusEffectInstance instance = this.getStatusEffect(DiabolismEffects.ELEMENTAL.get("brokenbones"));
+        if(this.hasStatusEffect(DiabolismEffects.MAP.get("broken_bones")) && isPhysicalDamageSource(source)){
+            StatusEffectInstance instance = this.getStatusEffect(DiabolismEffects.MAP.get("broken_bones"));
             float amplifier = instance == null ? 0 : instance.getAmplifier();
             return damageAmount * (1.0f + ((amplifier/100) * 3.0f));
         }
         return damageAmount;
     }
 
+    @Unique
     private boolean isPhysicalDamageSource(DamageSource source){
         return source.isIn(DamageTypeTags.IS_EXPLOSION) || source.isIn(DamageTypeTags.IS_FALL) || source.isIn(DamageTypeTags.IS_PROJECTILE)
                 || source.equals(this.getDamageSources().cramming())
@@ -168,7 +171,7 @@ public abstract class LivingEntityMixin extends Entity implements IMagicProperti
                 PacketByteBuf buf = PacketByteBufs.create();
                 buf.writeInt(magicShieldEntityId);
 
-                ClientPlayNetworking.send(DiabolismPackets.KILL_ENTITY_PACKET, buf);
+                ClientPlayNetworking.send(EntitySyncPackets.KILL_ENTITY_PACKET, buf);
 
                 System.out.println("Magic shield entity was not null");
             }

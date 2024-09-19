@@ -4,6 +4,13 @@ import jipthechip.diabolism.ItemGroups;
 import jipthechip.diabolism.Utils.DataUtils;
 import jipthechip.diabolism.blocks.DiabolismBlocks;
 import jipthechip.diabolism.data.*;
+import jipthechip.diabolism.data.brewing.Fluid;
+import jipthechip.diabolism.data.brewing.Yeast;
+import jipthechip.diabolism.data.spell.Spell;
+import jipthechip.diabolism.data.spell.SpellModifier;
+import jipthechip.diabolism.data.spell.SpellTemplate;
+import jipthechip.diabolism.data.spell.SpellType;
+import jipthechip.diabolism.packets.StatusEffectInstanceData;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -127,22 +134,22 @@ public class DiabolismItems {
             // YEAST
 
             ItemStack weakAirYeastStack = new ItemStack(MYSTICAL_YEAST);
-            Yeast weakAirYeast = Yeast.generateLowTierYeast(0,1, 1.1f);
+            Yeast weakAirYeast = Yeast.generateLowTierYeast(MagicElement.AIR,MagicElement.FIRE, 1.1f);
             DataUtils.writeObjectToItemNbt(weakAirYeastStack, weakAirYeast);
             entries.add(weakAirYeastStack);
 
             ItemStack weakFireYeastStack = new ItemStack(MYSTICAL_YEAST);
-            Yeast weakFireYeast = Yeast.generateLowTierYeast(1,0, 1.1f);
+            Yeast weakFireYeast = Yeast.generateLowTierYeast(MagicElement.FIRE,MagicElement.AIR, 1.1f);
             DataUtils.writeObjectToItemNbt(weakFireYeastStack, weakFireYeast);
             entries.add(weakFireYeastStack);
 
             ItemStack weakWaterYeastStack = new ItemStack(MYSTICAL_YEAST);
-            Yeast weakWaterYeast = Yeast.generateLowTierYeast(2,3, 0.9f);
+            Yeast weakWaterYeast = Yeast.generateLowTierYeast(MagicElement.WATER,MagicElement.EARTH, 0.9f);
             DataUtils.writeObjectToItemNbt(weakWaterYeastStack, weakWaterYeast);
             entries.add(weakWaterYeastStack);
 
             ItemStack weakEarthYeastStack = new ItemStack(MYSTICAL_YEAST);
-            Yeast weakEarthYeast = Yeast.generateLowTierYeast(3,2, 0.9f);
+            Yeast weakEarthYeast = Yeast.generateLowTierYeast(MagicElement.EARTH,MagicElement.WATER, 0.9f);
             DataUtils.writeObjectToItemNbt(weakEarthYeastStack, weakEarthYeast);
             entries.add(weakEarthYeastStack);
 
@@ -191,32 +198,42 @@ public class DiabolismItems {
             // MODIFIERS
 
             ItemStack basicModifierStack = new ItemStack(SPELL_MODIFIER);
-            SpellModifier basicSpellModifier = new SpellModifier(0,0,0);
+            SpellModifier basicSpellModifier = new SpellModifier(0,0);
             DataUtils.writeObjectToItemNbt(basicModifierStack, basicSpellModifier);
             entries.add(basicModifierStack);
 
             ItemStack preciseModifierStack = new ItemStack(SPELL_MODIFIER);
-            SpellModifier preciseSpellModifier = new SpellModifier(0,1,0);
+            SpellModifier preciseSpellModifier = new SpellModifier(0,-1);
             DataUtils.writeObjectToItemNbt(preciseModifierStack, preciseSpellModifier);
             entries.add(preciseModifierStack);
 
             ItemStack preciseModifierStack2 = new ItemStack(SPELL_MODIFIER);
-            SpellModifier preciseSpellModifier2 = new SpellModifier(0,3,0);
+            SpellModifier preciseSpellModifier2 = new SpellModifier(0,-2);
             DataUtils.writeObjectToItemNbt(preciseModifierStack2, preciseSpellModifier2);
             entries.add(preciseModifierStack2);
 
+            ItemStack preciseModifierStack3 = new ItemStack(SPELL_MODIFIER);
+            SpellModifier preciseSpellModifier3 = new SpellModifier(0,-3);
+            DataUtils.writeObjectToItemNbt(preciseModifierStack3, preciseSpellModifier3);
+            entries.add(preciseModifierStack3);
+
             ItemStack spreadModifierStack = new ItemStack(SPELL_MODIFIER);
-            SpellModifier spreadSpellModifier = new SpellModifier(0,0,1);
+            SpellModifier spreadSpellModifier = new SpellModifier(1,1);
             DataUtils.writeObjectToItemNbt(spreadModifierStack, spreadSpellModifier);
             entries.add(spreadModifierStack);
 
-            ItemStack multiModifierStack = new ItemStack(SPELL_MODIFIER);
-            SpellModifier multiSpellModifier = new SpellModifier(1, 0,0);
-            DataUtils.writeObjectToItemNbt(multiModifierStack, multiSpellModifier);
-            entries.add(multiModifierStack);
+            ItemStack spreadModifierStack2 = new ItemStack(SPELL_MODIFIER);
+            SpellModifier spreadModifier2 = new SpellModifier(2, 2);
+            DataUtils.writeObjectToItemNbt(spreadModifierStack2, spreadModifier2);
+            entries.add(spreadModifierStack2);
+
+            ItemStack spreadModifierStack3 = new ItemStack(SPELL_MODIFIER);
+            SpellModifier spreadModifier3 = new SpellModifier(3, 3);
+            DataUtils.writeObjectToItemNbt(spreadModifierStack3, spreadModifier3);
+            entries.add(spreadModifierStack3);
 
             ItemStack allModifierStack = new ItemStack(SPELL_MODIFIER);
-            SpellModifier allSpellModifier = new SpellModifier(3, 3,3);
+            SpellModifier allSpellModifier = new SpellModifier(3, 3);
             DataUtils.writeObjectToItemNbt(allModifierStack, allSpellModifier);
             entries.add(allModifierStack);
 
@@ -229,6 +246,11 @@ public class DiabolismItems {
             Wizwich wizwichExtreme = new Wizwich("lgbtqlgbtqlgbtqlgbtqlgbtqlgbtqlgbtqlgbtqlgbtqlgbtqlgbtqlgbtq");
             DataUtils.writeObjectToItemNbt(wizwichExtremeStack, wizwichExtreme);
             entries.add(wizwichExtremeStack);
+
+            ItemStack spellGlyph = new ItemStack(SPELL_GLYPH);
+            Spell spell = new Spell(SpellType.PROJECTILE, new StatusEffectInstanceData("chilly", 100, 100), new StatusEffectInstanceData("wet", 100, 100));
+            DataUtils.writeObjectToItemNbt(spellGlyph, spell);
+            entries.add(spellGlyph);
 
             entries.add(POWDER_COVERED_POLISHED_BLACKSTONE_BLOCKITEM);
             entries.add(DOUBLE_POLISHED_BLACKSTONE_BLOCKITEM);

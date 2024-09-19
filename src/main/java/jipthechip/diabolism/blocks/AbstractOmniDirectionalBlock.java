@@ -98,7 +98,7 @@ public abstract class AbstractOmniDirectionalBlock extends BlockWithEntity {
         checkDisconnects(actualWorld, pos);
     }
 
-    protected <T extends BlockEntity> void checkConnections(World world, BlockPos pos, BlockState state, @Nullable Class<T> blockEntityToConnect, @Nullable List<Direction> excludedDirections){
+    protected void checkConnections(World world, BlockPos pos, BlockState state, @Nullable List<Class<? extends BlockEntity>> BETypesToConnect, @Nullable List<Direction> excludedDirections){
 
         int connectionCount = 0;
 
@@ -118,22 +118,27 @@ public abstract class AbstractOmniDirectionalBlock extends BlockWithEntity {
             BlockEntity blockEntity = world.getBlockEntity(checkedPos);
 
             boolean isInstanceOfSameBlock = this.getClass().getSuperclass().isInstance(checkedState.getBlock()); // checks if blocks share the same superclass
+                                                                                                                 // need to know this to connect pipes to each other
+
             boolean hasAvailableConnections = isInstanceOfSameBlock && countConnections(checkedState) < ((AbstractOmniDirectionalBlock)checkedBlock).getMaxConnections();
 
-            boolean isInstanceOfBlockEntity = (blockEntityToConnect != null && blockEntityToConnect.isInstance(blockEntity)) && !(isInstanceOfSameBlock);
-
-
-            if((isInstanceOfSameBlock && hasAvailableConnections) || isInstanceOfBlockEntity){
-
-                //System.out.println("Checked Block has " + ((AbstractOmniDirectionalBlock) checkedBlock).getMaxConnections() + " total connections");
-                //System.out.println("Connection count: "+connectionCount);
+            if(isInstanceOfSameBlock && hasAvailableConnections){
+                world.setBlockState(checkedPos, checkedState.with(DIRECTION_PROPERTIES.get(dir.getOpposite()), true));
                 state = state.with(DIRECTION_PROPERTIES.get(dir), true);
                 world.setBlockState(pos, state);
+            }
+            else if(BETypesToConnect != null){
+                for(Class<?> BEType : BETypesToConnect){
+                    boolean isInstanceOfBlockEntity = (BEType != null && BEType.isInstance(blockEntity)) && !(isInstanceOfSameBlock); // check if the block is the type of block entity
+                                                                                                                                      // that we want to connect to, and not another pipe
+                    if(isInstanceOfBlockEntity){
 
-                if(isInstanceOfSameBlock)
-                    world.setBlockState(checkedPos, checkedState.with(DIRECTION_PROPERTIES.get(dir.getOpposite()), true));
+                        state = state.with(DIRECTION_PROPERTIES.get(dir), true);
+                        world.setBlockState(pos, state);
 
-                connectionCount++;
+                        connectionCount++;
+                    }
+                }
             }
         }
     }

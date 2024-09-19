@@ -1,9 +1,7 @@
 package jipthechip.diabolism.items;
 
 import jipthechip.diabolism.Utils.DataUtils;
-import jipthechip.diabolism.data.MagickaCrystal;
-import jipthechip.diabolism.data.SpellModifier;
-import jipthechip.diabolism.data.SpellModifierType;
+import jipthechip.diabolism.data.spell.SpellModifier;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -25,9 +23,8 @@ public class SpellModifierItem extends Item {
         SpellModifier modifier = DataUtils.readObjectFromItemNbt(stack, SpellModifier.class);
 
         if(modifier != null) {
-            tooltip.add(1, Text.literal("Multi: "+modifier.getMulti()).formatted(Formatting.YELLOW));
-            tooltip.add(2, Text.literal("Precise: "+modifier.getPrecise()).formatted(Formatting.RED));
-            tooltip.add(3, Text.literal("Spread: "+modifier.getSpread()).formatted(Formatting.BLUE));
+            tooltip.add(1, Text.literal("Multi: "+modifier.multi()).formatted(Formatting.YELLOW));
+            tooltip.add(2, Text.literal("Spread: "+modifier.spread()).formatted(Formatting.BLUE));
         }
     }
 }

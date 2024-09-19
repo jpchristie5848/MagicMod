@@ -19,4 +19,9 @@ public class ArcaneAltarBlockModel extends GeoModel<ArcaneAltar> {
     public Identifier getAnimationResource(ArcaneAltar animatable) {
         return new Identifier("diabolism", "animations/arcane_altar.animation.json");
     }
+
+    @Override
+    public boolean crashIfBoneMissing() {
+        return true;
+    }
 }

@@ -1,21 +1,21 @@
 package jipthechip.diabolism.packets;
 
-import jipthechip.diabolism.potion.DiabolismEffects;
+import jipthechip.diabolism.effect.DiabolismEffects;
 import net.minecraft.entity.effect.StatusEffectInstance;
 
 import java.io.Serializable;
 
 public class StatusEffectInstanceData implements Serializable {
 
-    String effectName;
+    String effectKey;
     int duration;
     int amplifier;
     boolean ambient;
     boolean showParticles;
     boolean showIcon;
 
-    public StatusEffectInstanceData(String effectName, int duration, int amplifier, boolean ambient, boolean showParticles, boolean showIcon){
-        this.effectName = effectName;
+    public StatusEffectInstanceData(String effectKey, int duration, int amplifier, boolean ambient, boolean showParticles, boolean showIcon){
+        this.effectKey = effectKey;
         this.duration = duration;
         this.amplifier = amplifier;
         this.ambient = ambient;
@@ -23,7 +23,28 @@ public class StatusEffectInstanceData implements Serializable {
         this.showIcon = showIcon;
     }
 
-    public StatusEffectInstance createFromData(){
-        return new StatusEffectInstance(DiabolismEffects.ELEMENTAL.get(effectName), duration, amplifier, ambient, showParticles, showIcon);
+    public StatusEffectInstanceData(String effectKey, int duration, int amplifier){
+        this.effectKey = effectKey;
+        this.duration = duration;
+        this.amplifier = amplifier;
+        this.ambient = true;
+        this.showParticles = false;
+        this.showIcon = true;
+    }
+
+    public StatusEffectInstance createInstance(){
+        return new StatusEffectInstance(DiabolismEffects.MAP.get(effectKey), duration, amplifier, ambient, showParticles, showIcon);
+    }
+
+    public String getEffectKey() {
+        return effectKey;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public int getAmplifier() {
+        return amplifier;
     }
 }

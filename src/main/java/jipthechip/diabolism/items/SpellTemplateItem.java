@@ -1,9 +1,7 @@
 package jipthechip.diabolism.items;
 
 import jipthechip.diabolism.Utils.DataUtils;
-import jipthechip.diabolism.data.SpellModifier;
-import jipthechip.diabolism.data.SpellTemplate;
-import jipthechip.diabolism.data.SpellType;
+import jipthechip.diabolism.data.spell.SpellTemplate;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

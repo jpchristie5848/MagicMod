@@ -3,6 +3,7 @@ package jipthechip.diabolism.blocks;
 
 import jipthechip.diabolism.entities.DiabolismEntities;
 import jipthechip.diabolism.entities.blockentities.AbstractFluidContainer;
+import jipthechip.diabolism.entities.blockentities.AbstractMagickaConsumer;
 import jipthechip.diabolism.entities.blockentities.FluidPipe;
 import jipthechip.diabolism.entities.blockentities.FluidPump;
 import net.minecraft.block.Block;
@@ -53,16 +54,21 @@ public class FluidPumpBlock extends FluidPipeBlock {
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
 
-        Direction pumpDir = null;
+        Direction finalPumpDir = null;
+        Direction adjacentContainerPumpDir = null;
+        int numAdjacentContainers = 0;
         for(Direction dir : Direction.values()){ // search for an adjacent fluid container to pump from
             Vec3i vec = dir.getVector();
             BlockEntity blockEntity = world.getBlockEntity(pos.add(vec));
             if(blockEntity instanceof AbstractFluidContainer && ! (blockEntity instanceof FluidPump || blockEntity instanceof FluidPipe)){
-                pumpDir = dir;
-                break;
+                numAdjacentContainers++;
+                adjacentContainerPumpDir = dir;
             }
         }
-        if(pumpDir == null){
+        if(numAdjacentContainers == 1){
+            finalPumpDir = adjacentContainerPumpDir;
+        }
+        if(finalPumpDir == null){
             if(placer != null){ // if didn't find a nearby fluid container, just make it pump from the direction the placer is looking
                 float pitch = placer.getPitch();
                 float yaw = placer.getYaw();
@@ -70,9 +76,9 @@ public class FluidPumpBlock extends FluidPipeBlock {
                 System.out.println("yaw when placing pump: "+yaw);
 
                 if(pitch >= 50){
-                    pumpDir = Direction.DOWN;
+                    finalPumpDir = Direction.DOWN;
                 }else if(pitch <= -50){
-                    pumpDir = Direction.UP;
+                    finalPumpDir = Direction.UP;
                 }
                 // yaw degrees:
                 // north 180/-180
@@ -80,22 +86,21 @@ public class FluidPumpBlock extends FluidPipeBlock {
                 // east -90
                 // west 90
                 else if(yaw > -45 && yaw <= 45){
-                    pumpDir = Direction.SOUTH;
+                    finalPumpDir = Direction.SOUTH;
                 }else if(yaw > -135 && yaw <= -45){
-                    pumpDir = Direction.EAST;
+                    finalPumpDir = Direction.EAST;
                 }else if(yaw > 135 || yaw <= -135){
-                    pumpDir = Direction.NORTH;
+                    finalPumpDir = Direction.NORTH;
                 }else {
-                    pumpDir = Direction.WEST;
+                    finalPumpDir = Direction.WEST;
                 }
             }else{ // if all else fails, default to north
-                pumpDir = Direction.NORTH;
+                finalPumpDir = Direction.NORTH;
             }
         }
-        System.out.println("determined pumpdir "+ pumpDir.getName());
-        state = state.with(PUMP_FROM_DIRECTION, pumpDir);
+        state = state.with(PUMP_FROM_DIRECTION, finalPumpDir);
         world.setBlockState(pos, state);
-        checkConnections(world, pos, state, AbstractFluidContainer.class, List.of(pumpDir));
+        checkConnections(world, pos, state, List.of(AbstractFluidContainer.class, AbstractMagickaConsumer.class), List.of(finalPumpDir));
 
     }
 
@@ -118,8 +123,8 @@ public class FluidPumpBlock extends FluidPipeBlock {
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         BlockEntity entity = world.getBlockEntity(pos);
         if(entity instanceof FluidPump pump && System.currentTimeMillis() - lastToggled > 2000){
-            pump.toggleActive();
-            lastToggled = System.currentTimeMillis();
+            if(pump.toggleActive())
+                lastToggled = System.currentTimeMillis();
         }
         return ActionResult.SUCCESS;
     }

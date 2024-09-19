@@ -1,7 +1,7 @@
 package jipthechip.diabolism.blocks;
 
 import jipthechip.diabolism.Utils.DataUtils;
-import jipthechip.diabolism.data.Fluid;
+import jipthechip.diabolism.data.brewing.Fluid;
 import jipthechip.diabolism.entities.blockentities.AbstractFluidContainer;
 import jipthechip.diabolism.items.DiabolismItems;
 import net.minecraft.block.BlockState;
@@ -17,10 +17,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractFluidContainingBlock extends BlockWithEntity {
@@ -45,20 +43,22 @@ public abstract class AbstractFluidContainingBlock extends BlockWithEntity {
                     //System.out.println("fluid not null in abstract onUse");
                     BlockEntity be = world.getBlockEntity(pos);
                     if(be instanceof AbstractFluidContainer container){
-                        int fluidAdded = container.addFluid(fluid);
-                        if(fluidAdded > 0){
-                            container.syncWithServer();
-                            container.markDirty();
+                        if(container.canFillBucket()){
+                            int fluidAdded = container.addFluid(fluid);
+                            if(fluidAdded > 0){
+                                container.sync();
+                                container.markDirty();
 
-                            if(fluidAdded < fluid.getAmount()){
-                                fluid.remove(fluidAdded);
-                                nbt.putString("fluid", DataUtils.SerializeToString(fluid));
-                            }else{
-                                System.out.println("set item stack to empty bucket in abstract onUse");
-                                player.setStackInHand(hand, new ItemStack(Items.BUCKET));
+                                if(fluidAdded < fluid.getAmount()){
+                                    fluid.remove(fluidAdded);
+                                    nbt.putString("fluid", DataUtils.SerializeToString(fluid));
+                                }else{
+                                    System.out.println("set item stack to empty bucket in abstract onUse");
+                                    player.setStackInHand(hand, new ItemStack(Items.BUCKET));
+                                }
+
+                                return ActionResult.SUCCESS;
                             }
-
-                            return ActionResult.SUCCESS;
                         }
                     }
                 }
@@ -74,6 +74,10 @@ public abstract class AbstractFluidContainingBlock extends BlockWithEntity {
             BlockPos checkedPos = pos.add(vec);
             BlockState checkedState = world.getBlockState(checkedPos);
             if(checkedState.getBlock() instanceof FluidPipeBlock){
+                if(checkedState.getBlock() instanceof FluidPumpBlock){
+                    Direction skippedDir = world.getBlockState(checkedPos).get(FluidPumpBlock.PUMP_FROM_DIRECTION);
+                    if (skippedDir == dir.getOpposite()) continue;
+                }
                 switch (dir){
                     case NORTH -> {
                         world.setBlockState(checkedPos, checkedState.with(AbstractOmniDirectionalBlock.SOUTH, true));

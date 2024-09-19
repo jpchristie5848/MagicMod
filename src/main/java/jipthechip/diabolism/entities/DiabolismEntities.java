@@ -2,9 +2,12 @@ package jipthechip.diabolism.entities;
 
 import jipthechip.diabolism.blocks.DiabolismBlocks;
 import jipthechip.diabolism.entities.blockentities.*;
+import jipthechip.diabolism.packets.BlockEntitySyncPacket;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.minecraft.block.Block;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.entity.EntityDimensions;
@@ -54,11 +57,12 @@ public class DiabolismEntities {
         CRYSTAL_ALTAR_BLOCKENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, "diabolism:crystal_altar_blockentity", FabricBlockEntityTypeBuilder.create(CrystalAltarBlockEntity::new, DiabolismBlocks.CRYSTAL_ALTAR).build(null));
         STARLIGHT_COLLECTOR_BLOCKENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, "diabolism:starlight_collector_blockentity", FabricBlockEntityTypeBuilder.create(StarlightCollectorBlockEntity::new, DiabolismBlocks.STARLIGHT_COLLECTOR).build(null));
         SUNLIGHT_COLLECTOR_BLOCKENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, "diabolism:sunlight_collector_blockentity", FabricBlockEntityTypeBuilder.create(SunlightCollectorBlockEntity::new, DiabolismBlocks.SUNLIGHT_COLLECTOR).build(null));
-        MAGIC_CHURNER_BLOCKENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, "diabolism:magic_churner_blockentity", FabricBlockEntityTypeBuilder.create(MagicChurner::new, DiabolismBlocks.MAGIC_CHURNER).build(null));
-        FLUID_PIPE_BLOCKENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, "diabolism:fluid_pipe_blockentity", FabricBlockEntityTypeBuilder.create(FluidPipe::new, DiabolismBlocks.FLUID_PIPE).build(null));
-        FLUID_PUMP_BLOCKENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, "diabolism:fluid_pump_blockentity", FabricBlockEntityTypeBuilder.create(FluidPump::new, DiabolismBlocks.FLUID_PUMP).build(null));
-        MAGIC_FERMENTER_BLOCKENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, "diabolism:magic_fermenter_blockentity", FabricBlockEntityTypeBuilder.create(MagicFermenter::new, DiabolismBlocks.MAGIC_FERMENTER).build(null));
-        ARCANE_ALTAR_BLOCKENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, "diabolism:arcane_altar_blockentity", FabricBlockEntityTypeBuilder.create(ArcaneAltar::new, DiabolismBlocks.ARCANE_ALTAR).build(null));
+
+        MAGIC_CHURNER_BLOCKENTITY = registerBlockEntity(MagicChurner.class, MagicChurner::new, DiabolismBlocks.MAGIC_CHURNER);
+        FLUID_PIPE_BLOCKENTITY = registerBlockEntity(FluidPipe.class, FluidPipe::new, DiabolismBlocks.FLUID_PIPE);
+        FLUID_PUMP_BLOCKENTITY = registerBlockEntity(FluidPump.class, FluidPump::new, DiabolismBlocks.FLUID_PUMP);
+        MAGIC_FERMENTER_BLOCKENTITY = registerBlockEntity(MagicFermenter.class, MagicFermenter::new, DiabolismBlocks.MAGIC_FERMENTER);
+        ARCANE_ALTAR_BLOCKENTITY = registerBlockEntity(ArcaneAltar.class, ArcaneAltar::new, DiabolismBlocks.ARCANE_ALTAR);
 
         PROJECTILE_SPELL = Registry.register(Registries.ENTITY_TYPE, "diabolism:projectile_spell_entity",
                 FabricEntityTypeBuilder.<ProjectileSpellEntity>create(SpawnGroup.MISC, ProjectileSpellEntity::new)
@@ -83,10 +87,6 @@ public class DiabolismEntities {
                         .dimensions(EntityDimensions.changing(0.1f,0.1f))
                         .trackRangeChunks(64)
                         .build());
-
-
-
-
     }
     public static void registerEntityRenderers(){
         //BlockEntityRendererRegistry.register(CRYSTAL_ALTAR_BLOCKENTITY, CrystalAltarBlockEntityRenderer::new);
@@ -98,5 +98,17 @@ public class DiabolismEntities {
         EntityRendererRegistry.register(SHIELD_SPELL, ShieldSpellEntityRenderer::new);
         EntityRendererRegistry.register(WATCHER, WatcherEntityRenderer::new);
         EntityRendererRegistry.register(MAGICKA_PARTICLE, MagickaParticleEntityRenderer::new);
+    }
+
+    private static <T extends BlockEntity> BlockEntityType<T> registerBlockEntity(Class<T> beClass, FabricBlockEntityTypeBuilder.Factory<T> factory, Block block){
+        if(AbstractSyncedBlockEntity.class.isAssignableFrom(beClass)){
+            addSyncPacket((Class<? extends AbstractSyncedBlockEntity>)beClass);
+        }
+        return Registry.register(Registries.BLOCK_ENTITY_TYPE, "diabolism:"+block.getClass().getSimpleName().toLowerCase()+"_blockentity", FabricBlockEntityTypeBuilder.create(factory, block).build(null));
+    }
+
+    private static <B extends AbstractSyncedBlockEntity> void addSyncPacket(Class<B> beClass){
+        System.out.println("Registering Sync Packet for block entity: '"+beClass.getSimpleName()+"'");
+        AbstractSyncedBlockEntity.SYNC_PACKETS.put(beClass.getSimpleName().toLowerCase(), BlockEntitySyncPacket.registerSyncPacket(beClass));
     }
 }

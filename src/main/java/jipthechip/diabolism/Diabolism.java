@@ -5,7 +5,7 @@ import jipthechip.diabolism.entities.DiabolismEntities;
 import jipthechip.diabolism.entities.blockentities.screen.DiabolismScreens;
 import jipthechip.diabolism.events.DiabolismEvents;
 import jipthechip.diabolism.items.DiabolismItems;
-import jipthechip.diabolism.potion.DiabolismEffects;
+import jipthechip.diabolism.effect.DiabolismEffects;
 import jipthechip.diabolism.packets.DiabolismPackets;
 import jipthechip.diabolism.particle.DiabolismParticles;
 import jipthechip.diabolism.recipe.DiabolismRecipes;
@@ -26,7 +26,7 @@ public class Diabolism implements ModInitializer {
         DiabolismEvents.registerEvents();
         DiabolismEntities.registerEntities();
         DiabolismRecipes.registerRecipes();
-        DiabolismEffects.registerPotionEffects();
+        DiabolismEffects.registerStatusEffects();
         DiabolismEffects.registerPotions();
         DiabolismEffects.registerPotionRecipes();
         DiabolismParticles.registerParticles();

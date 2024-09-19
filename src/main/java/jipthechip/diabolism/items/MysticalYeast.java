@@ -1,7 +1,7 @@
 package jipthechip.diabolism.items;
 
 import jipthechip.diabolism.Utils.DataUtils;
-import jipthechip.diabolism.data.Yeast;
+import jipthechip.diabolism.data.brewing.Yeast;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MysticalYeast extends Item {
 
@@ -33,7 +34,9 @@ public class MysticalYeast extends Item {
 
         Yeast yeast = DataUtils.readObjectFromItemNbt(stack, Yeast.class);
         if(yeast != null){
-            tooltip.add(1, Text.literal("Yield Multipliers: "+ Arrays.toString(yeast.getYieldMultipliers())).formatted(Formatting.RED));
+            tooltip.add(1, Text.literal("Yield Multipliers: "+  yeast.getYieldMultipliers().entrySet().stream()
+                    .map(entry -> "{" + entry.getKey() + ", " + entry.getValue()+"}")
+                    .collect(Collectors.joining(", "))).formatted(Formatting.RED));
             tooltip.add(2, Text.literal("Speed Multiplier: "+ yeast.getSpeedMultiplier()).formatted(Formatting.YELLOW));
             tooltip.add(3, Text.literal("Ideal Temperature: "+ yeast.getIdealTemperature()).formatted(Formatting.GREEN));
         }

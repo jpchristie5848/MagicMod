@@ -4,17 +4,11 @@ import jipthechip.diabolism.Utils.BlockHelpers;
 import jipthechip.diabolism.Utils.TargetCondition;
 import jipthechip.diabolism.blocks.DiabolismBlocks;
 import jipthechip.diabolism.blocks.FluidPumpBlock;
+import jipthechip.diabolism.data.brewing.entity.FluidPumpData;
 import jipthechip.diabolism.entities.DiabolismEntities;
-import jipthechip.diabolism.packets.DiabolismPackets;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
@@ -32,16 +26,14 @@ import software.bernie.geckolib.util.RenderUtils;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class FluidPump extends AbstractFluidContainer {
+public class FluidPump extends AbstractFluidContainer<FluidPumpData> {
 
     long lastPumped = -1;
 
     long tickCounter = -1;
-
-    boolean isActive = false;
+    int num_updates = 0;
 
     private final TargetCondition targetCondition = (blockEntity) -> {
 
@@ -53,12 +45,10 @@ public class FluidPump extends AbstractFluidContainer {
 
 
     private static final RawAnimation PUMP_NS = RawAnimation.begin().thenPlay("pipe_pump_animation_northsouth");
-    private static final RawAnimation PUMP_EW = RawAnimation.begin().thenLoop("pipe_pump_animation_eastwest");
-    private static final RawAnimation PUMP_UD = RawAnimation.begin().thenLoop("pipe_pump_animation_updown");
     private AnimatableInstanceCache instanceCache = GeckoLibUtil.createInstanceCache(this);
 
     public FluidPump(BlockPos pos, BlockState state) {
-        super(DiabolismEntities.FLUID_PUMP_BLOCKENTITY, pos, state,50, false);
+        super(DiabolismEntities.FLUID_PUMP_BLOCKENTITY, pos, state,50, false, new FluidPumpData());
     }
 
     public static void ticker(World world, BlockPos pos, BlockState state, FluidPump be) {
@@ -72,8 +62,8 @@ public class FluidPump extends AbstractFluidContainer {
 
     private void tick(World world, BlockPos pos, BlockState state){
 
-        if(System.currentTimeMillis() - lastPumped >= 2000 && isActive && !world.isClient){
-
+        if(System.currentTimeMillis() - lastPumped >= 2000 && data != null && data.getExtendedData().isActive() && !world.isClient){
+            long currentTime = System.currentTimeMillis();
             BlockPos pumpFromPos = getPos().add(state.get(FluidPumpBlock.PUMP_FROM_DIRECTION).getVector());
             BlockEntity pumpFromBlockEntity = world.getBlockEntity(pumpFromPos);
 
@@ -106,13 +96,13 @@ public class FluidPump extends AbstractFluidContainer {
                         // transferring into magicka consumer
                         }else if(blockEntity1 instanceof AbstractFluidContainer container && blockEntity2 instanceof AbstractMagickaConsumer consumer){
 
-                            System.out.println("fluid in pump tick: "+container.getFluid());
+                            //System.out.println("fluid in pump tick: "+container.getFluidData().getBaseData());
 
-                            int amountToRemove = consumer.addFluid(container.getFluid(), container.getFluidAmount());
+                            int amountToRemove = consumer.addFluid(container.getFluidData(), container.getFluidAmount());
                             if(amountToRemove > 0) {
                                 successfulPumpAchieved = true;
                                 container.removeFluid(amountToRemove);
-                                container.syncWithClient();
+                                container.sync();
                             }
                         }
                     }
@@ -121,11 +111,12 @@ public class FluidPump extends AbstractFluidContainer {
                     }
                 }
                 while(!successfulPumpAchieved && !path.isEmpty());
-                // if a successful movement of fluid isn't achieved on a path, it will continue to search for other containers to pump to until it can't find any more
+                // if a successful movement of fluid isn't achieved on a path, it will continue to search for other containers to pump to
             }
 
 
             lastPumped = System.currentTimeMillis();
+            num_updates++;
         }
         tickCounter++;
 
@@ -154,17 +145,6 @@ public class FluidPump extends AbstractFluidContainer {
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        this.isActive = nbt.getBoolean("turnedOn");
-    }
-
-    @Override
-    protected void writeNbt(NbtCompound nbt) {
-        nbt.putBoolean("turnedOn", this.isActive);
-        super.writeNbt(nbt);
-    }
-
-    @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
         AnimationController<FluidPump> controller = new AnimationController<FluidPump>(this, "fluid_pump_controller", this::predicate);
         controllerRegistrar.add(controller);
@@ -174,28 +154,24 @@ public class FluidPump extends AbstractFluidContainer {
         World world = getWorld();
         BlockPos pos = getPos();
         BlockState state = world.getBlockState(pos);
-        Direction dir;
         if(state.getBlock() != DiabolismBlocks.FLUID_PUMP){
            return PlayState.CONTINUE;
         }
-        if(!isActive){
+        if(data != null && !data.getExtendedData().isActive()){
             return PlayState.STOP;
         }
-        dir = state.get(FluidPumpBlock.PUMP_FROM_DIRECTION);
+        event.setAnimation(PUMP_NS);
 
-        if(dir == Direction.NORTH || dir == Direction.SOUTH) {
-            event.setAnimation(PUMP_NS);
-        }else if(dir == Direction.EAST || dir == Direction.WEST) {
-            event.setAnimation(PUMP_EW);
-        } else if(dir == Direction.UP || dir == Direction.DOWN) {
-            event.setAnimation(PUMP_UD);
-        }
         return PlayState.CONTINUE;
     }
 
-    public void toggleActive(){
-        this.isActive = !this.isActive;
-        syncWithServer();
+    public boolean toggleActive(){
+        if(!world.isClient) {
+            data.getExtendedData().toggleActive();
+            sync();
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -219,33 +195,43 @@ public class FluidPump extends AbstractFluidContainer {
         return createNbt();
     }
 
-    public void syncWithClient(){
-        super.syncWithClient();
-        if(!world.isClient){
-            PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeBoolean(isActive);
-            buf.writeBlockPos(pos);
+//    public void syncWithClient(){
+//        super.syncWithClient();
+//        if(!world.isClient){
+//            PacketByteBuf buf = PacketByteBufs.create();
+//            buf.writeBoolean(isActive);
+//            buf.writeBlockPos(pos);
+//
+//            PlayerLookup.tracking(this).forEach(player -> {
+//                ServerPlayNetworking.send(player, BlockSyncPackets.SYNC_FLUID_PUMP_W_CLIENT, buf);
+//            });
+//        }
+//    }
+//
+//    @Override
+//    public void syncWithServer() {
+//        super.syncWithServer();
+//        if(MinecraftClient.getInstance().player != null && world != null && world.isClient){
+//            PacketByteBuf buf = PacketByteBufs.create();
+//            buf.writeBoolean(isActive);
+//            buf.writeBlockPos(pos);
+//
+//            ClientPlayNetworking.send(BlockSyncPackets.SYNC_FLUID_PUMP_W_SERVER, buf);
+//        }
+//    }
 
-            PlayerLookup.tracking(this).forEach(player -> {
-                ServerPlayNetworking.send(player, DiabolismPackets.SYNC_FLUID_PUMP_W_CLIENT, buf);
-            });
+
+    public Direction getPumpFromDir(){
+        World world = getWorld();
+        if(world != null){
+            BlockState state = world.getBlockState(getPos());
+            if(state.getBlock() != DiabolismBlocks.FLUID_PUMP){
+                return Direction.NORTH;
+            }else{
+                return state.get(FluidPumpBlock.PUMP_FROM_DIRECTION);
+            }
         }
-    }
-
-    @Override
-    public void syncWithServer() {
-        super.syncWithServer();
-        if(MinecraftClient.getInstance().player != null && world != null && world.isClient){
-            PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeBoolean(isActive);
-            buf.writeBlockPos(pos);
-
-            ClientPlayNetworking.send(DiabolismPackets.SYNC_FLUID_PUMP_W_SERVER, buf);
-        }
-    }
-
-    public void setActive(boolean isActive){
-        this.isActive = isActive;
+        return null;
     }
 
 }
