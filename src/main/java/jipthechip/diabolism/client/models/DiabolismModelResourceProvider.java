@@ -1,9 +1,6 @@
 package jipthechip.diabolism.client.models;
 
-import jipthechip.diabolism.client.models.items.MagickaCrystalModel;
-import jipthechip.diabolism.client.models.items.SpellModifierModel;
-import jipthechip.diabolism.client.models.items.SpellTemplateModel;
-import jipthechip.diabolism.client.models.items.WizwichModel;
+import jipthechip.diabolism.client.models.items.*;
 import net.fabricmc.fabric.api.client.model.ModelProviderContext;
 import net.fabricmc.fabric.api.client.model.ModelProviderException;
 import net.fabricmc.fabric.api.client.model.ModelResourceProvider;
@@ -18,6 +15,7 @@ public class DiabolismModelResourceProvider implements ModelResourceProvider {
 
     private static final Identifier MAGICKA_CRYSTAL_ID = new Identifier("diabolism:item/magicka_crystal");
     private static final Identifier SPELL_TEMPLATE_ID = new Identifier("diabolism:item/spell_template");
+    private static final Identifier SPELL_GEM_ID = new Identifier("diabolism:item/spell_gem");
     @Override
     public @Nullable UnbakedModel loadModelResource(Identifier resourceId, ModelProviderContext context) throws ModelProviderException {
         if(resourceId.equals(SPELL_MODIFIER_ID)){
@@ -26,9 +24,10 @@ public class DiabolismModelResourceProvider implements ModelResourceProvider {
             return new WizwichModel();
         }else if(resourceId.equals(MAGICKA_CRYSTAL_ID)){
             return new MagickaCrystalModel();
-        }
-        else if(resourceId.equals(SPELL_TEMPLATE_ID)){
+        }else if(resourceId.equals(SPELL_TEMPLATE_ID)){
             return new SpellTemplateModel();
+        }else if(resourceId.equals(SPELL_GEM_ID)){
+            return new SpellGemModel();
         }
         else{
             return null;

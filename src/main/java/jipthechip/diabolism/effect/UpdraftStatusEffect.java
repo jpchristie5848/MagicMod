@@ -15,7 +15,9 @@ public class UpdraftStatusEffect extends AbstractElementalStatusEffect {
     @Override
     public void applyUpdateEffect(LivingEntity entity, int amplifier) {
 
-        entity.setVelocity(entity.getVelocity().getX(), entity.getVelocity().getY()+0.24, entity.getVelocity().getZ());
+        float velocityOffset = 0.2f * (amplifier/100.0f);
+
+        entity.setVelocity(entity.getVelocity().getX(), entity.getVelocity().getY()+0.2+velocityOffset, entity.getVelocity().getZ());
 
     }
 

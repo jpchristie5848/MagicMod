@@ -7,7 +7,7 @@ import jipthechip.diabolism.entities.blockentities.geo.ArcaneAltarBlockRenderer;
 import jipthechip.diabolism.entities.blockentities.geo.MagicChurnerBlockRenderer;
 import jipthechip.diabolism.entities.blockentities.geo.FluidPumpBlockRenderer;
 import jipthechip.diabolism.entities.blockentities.geo.MagicFermenterBlockRenderer;
-import jipthechip.diabolism.entities.blockentities.screen.DiabolismScreens;
+import jipthechip.diabolism.screen.DiabolismScreens;
 import jipthechip.diabolism.items.DiabolismItems;
 import jipthechip.diabolism.particle.DiabolismParticles;
 import net.fabricmc.api.ClientModInitializer;

@@ -1,13 +1,11 @@
-package jipthechip.diabolism.entities.blockentities.screen;
+package jipthechip.diabolism.screen;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.slot.Slot;
 
-public class IngredientSlot extends ClientSyncingSlot {
+public class IngredientSlot extends SyncedBlockEntitySlot {
 
     Item ingredient;
 

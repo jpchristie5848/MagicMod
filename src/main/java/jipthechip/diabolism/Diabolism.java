@@ -2,7 +2,7 @@ package jipthechip.diabolism;
 
 import jipthechip.diabolism.blocks.DiabolismBlocks;
 import jipthechip.diabolism.entities.DiabolismEntities;
-import jipthechip.diabolism.entities.blockentities.screen.DiabolismScreens;
+import jipthechip.diabolism.screen.DiabolismScreens;
 import jipthechip.diabolism.events.DiabolismEvents;
 import jipthechip.diabolism.items.DiabolismItems;
 import jipthechip.diabolism.effect.DiabolismEffects;

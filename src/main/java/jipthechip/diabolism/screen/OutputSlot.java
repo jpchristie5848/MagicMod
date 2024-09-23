@@ -1,11 +1,10 @@
-package jipthechip.diabolism.entities.blockentities.screen;
+package jipthechip.diabolism.screen;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.slot.Slot;
 
-public class OutputSlot extends ClientSyncingSlot {
+public class OutputSlot extends SyncedBlockEntitySlot {
 
     public OutputSlot(BlockEntity entity, Inventory inventory, int index, int x, int y) {
         super(entity, inventory, index, x, y);

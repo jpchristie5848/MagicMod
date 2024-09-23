@@ -1,17 +1,26 @@
 package jipthechip.diabolism.entities.blockentities;
 
 import io.wispforest.owo.util.ImplementedInventory;
+import jipthechip.diabolism.Utils.DataUtils;
+import jipthechip.diabolism.Utils.MathUtils;
+import jipthechip.diabolism.data.MagicElement;
+import jipthechip.diabolism.data.MagickaCrystal;
+import jipthechip.diabolism.data.MagickaFluid;
 import jipthechip.diabolism.data.brewing.entity.ArcaneAltarData;
+import jipthechip.diabolism.data.spell.Spell;
+import jipthechip.diabolism.data.spell.SpellTemplate;
+import jipthechip.diabolism.data.spell.SpellType;
+import jipthechip.diabolism.effect.DiabolismEffects;
 import jipthechip.diabolism.entities.DiabolismEntities;
-import jipthechip.diabolism.entities.blockentities.screen.ArcaneAltarScreenHandler;
+import jipthechip.diabolism.screen.blockentity.ArcaneAltarScreenHandler;
 import jipthechip.diabolism.items.DiabolismItems;
+import jipthechip.diabolism.packets.StatusEffectInstanceData;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
@@ -30,6 +39,8 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import software.bernie.geckolib.util.RenderUtils;
+
+import java.util.Objects;
 
 public class ArcaneAltar extends AbstractMagickaConsumer<ArcaneAltarData> implements ExtendedScreenHandlerFactory, ImplementedInventory {
 
@@ -72,7 +83,16 @@ public class ArcaneAltar extends AbstractMagickaConsumer<ArcaneAltarData> implem
 
     protected void craft(){
         if(hasRecipe()){
-            inventory.set(3, new ItemStack(Items.STICK));
+            ItemStack spellGlyphStack = new ItemStack(DiabolismItems.SPELL_GEM);
+
+            MagicElement element = Objects.requireNonNull(DataUtils.readObjectFromItemNbt(inventory.get(0), MagickaCrystal.class)).getElement();
+            SpellType spellType = Objects.requireNonNull(DataUtils.readObjectFromItemNbt(inventory.get(1), SpellTemplate.class)).getSpellType();
+            StatusEffectInstanceData effectData = DiabolismEffects.getEffectForSpell(element, this);
+
+            Spell spell = new Spell(spellType, effectData);
+            DataUtils.writeObjectToItemNbt(spellGlyphStack, spell);
+
+            inventory.set(3, spellGlyphStack);
             data.setProgress(0);
         }
     }
@@ -130,11 +150,21 @@ public class ArcaneAltar extends AbstractMagickaConsumer<ArcaneAltarData> implem
         return hasRecipe() && data.getProgress() <= maxProgress;
     }
 
+    public float getScaledMagicElement(MagicElement element){
+        for(MagickaFluid magickaFluid : data.getFluids()){
+            if(magickaFluid.getElement() == element && magickaFluid.getAmount() > 0){
+                return MathUtils.roundToDecimalPlace((magickaFluid.getAmount()*magickaFluid.getPurity())/capacity,4);
+            }
+        }
+        return 0.0f;
+    }
+
     private boolean hasRecipe(){
         return inventory.get(0).getItem() == DiabolismItems.MAGICKA_CRYSTAL
                 && inventory.get(1).getItem() == DiabolismItems.SPELL_TEMPLATE
                 && inventory.get(2).getItem() == DiabolismItems.SPELL_MODIFIER
-                && inventory.get(3).isEmpty();
+                && inventory.get(3).isEmpty()
+                && getScaledMagicElement(Objects.requireNonNull(DataUtils.readObjectFromItemNbt(inventory.get(0), MagickaCrystal.class)).getElement())>0.0f;
     }
 
 //    @Override

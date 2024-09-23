@@ -2,6 +2,7 @@ package jipthechip.diabolism.packets;
 
 import io.wispforest.owo.util.ImplementedInventory;
 import jipthechip.diabolism.Utils.DataUtils;
+import jipthechip.diabolism.Utils.PacketUtils;
 import jipthechip.diabolism.entities.blockentities.AbstractSyncedBlockEntity;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -79,13 +80,7 @@ public class BlockEntitySyncPacket<T extends Serializable> extends SyncPacket<Ab
                 ClientPlayNetworking.send(this.ID, buf);
                 //System.out.println("sending sync packet from client for block entity '"+blockEntity.getClass().getSimpleName()+"' at "+blockEntity.getPos());
             }else{
-                if(blockEntity instanceof ImplementedInventory invEntity){
-                    DefaultedList<ItemStack> inventory = invEntity.getItems();
-                    buf.writeInt(inventory.size());
-                    for(int i = 0; i < inventory.size(); i++){
-                        buf.writeItemStack(inventory.get(i));
-                    }
-                }
+                PacketUtils.writeInventoryToBuffer(buf, blockEntity);
                 //System.out.println("sending sync packet from server for block entity '"+blockEntity.getClass().getSimpleName()+"' at "+blockEntity.getPos());
                 PlayerLookup.tracking(blockEntity).forEach((player)-> ServerPlayNetworking.send(player, this.ID, buf));
             }
@@ -94,12 +89,10 @@ public class BlockEntitySyncPacket<T extends Serializable> extends SyncPacket<Ab
 
     @Override
     public void sendToClient(Serializable obj) {
-
     }
 
     @Override
     public void sendToServer(Serializable obj) {
-
     }
 
     public static <D extends Serializable, B extends AbstractSyncedBlockEntity<D>> BlockEntitySyncPacket<D> registerSyncPacket(Class<B> beClass){

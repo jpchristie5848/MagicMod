@@ -13,9 +13,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class SpellGlyph extends Item {
+public class SpellGem extends Item {
 
-    public SpellGlyph(Settings settings) {
+    public SpellGem(Settings settings) {
         super(settings);
     }
 
@@ -36,8 +36,13 @@ public class SpellGlyph extends Item {
                 tooltip.add(toolTipIndex, Text.literal("Effect "+(i+1)));
                 tooltip.add(toolTipIndex+1, Text.literal("Name: "+effectData.getEffectKey()).formatted(Formatting.AQUA));
                 tooltip.add(toolTipIndex+2, Text.literal("Amplifier: "+effectData.getAmplifier()).formatted(Formatting.YELLOW));
-                tooltip.add(toolTipIndex+3, Text.literal("Duration: "+effectData.getAmplifier()).formatted(Formatting.RED));
+                tooltip.add(toolTipIndex+3, Text.literal("Duration: "+effectData.getDuration()).formatted(Formatting.RED));
             }
         }
+    }
+
+    @Override
+    public boolean hasGlint(ItemStack stack) {
+        return true;
     }
 }

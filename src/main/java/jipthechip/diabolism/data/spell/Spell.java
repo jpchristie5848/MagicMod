@@ -1,6 +1,7 @@
 package jipthechip.diabolism.data.spell;
 
 import jipthechip.diabolism.data.MagicElement;
+import jipthechip.diabolism.data.MagicElementColors;
 import jipthechip.diabolism.entities.DiabolismEntities;
 import jipthechip.diabolism.entities.ProjectileSpellEntity;
 import jipthechip.diabolism.packets.StatusEffectInstanceData;
@@ -31,9 +32,11 @@ public class Spell implements Serializable {
         effects = List.of(instances);
     }
 
-    public void cast(LivingEntity caster){
+    public static void cast(Spell spell, LivingEntity caster){
 
         World world = caster.getWorld();
+        SpellType type = spell.getType();
+        List<StatusEffectInstanceData> effects = spell.getEffects();
 
         switch(type){
             case PROJECTILE -> {
@@ -62,12 +65,12 @@ public class Spell implements Serializable {
         }
     }
 
-    private void playSelfParticles(LivingEntity caster, StatusEffectInstance instance, World world){
+    private static void playSelfParticles(LivingEntity caster, StatusEffectInstance instance, World world){
         int numParticles = (int) Math.pow((instance.getDuration()/6 + instance.getAmplifier())/2, 1.3);
 
         MagicElement effectElement = ((AbstractElementalStatusEffect)instance.getEffectType()).getElement();
 
-        int particleColor = Spell.ELEMENT_COLORS[effectElement.ordinal()];
+        int particleColor = MagicElementColors.MAP.get(effectElement);
         for(int i = 0; i < numParticles; i++){
             if(caster instanceof ServerPlayerEntity playerEntity){
                 ((ServerWorld) world).spawnParticles(playerEntity,

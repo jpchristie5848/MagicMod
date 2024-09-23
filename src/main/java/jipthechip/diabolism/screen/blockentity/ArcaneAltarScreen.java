@@ -1,7 +1,7 @@
-package jipthechip.diabolism.entities.blockentities.screen;
+package jipthechip.diabolism.screen.blockentity;
 
+import jipthechip.diabolism.data.MagicElementColors;
 import jipthechip.diabolism.data.MagickaFluid;
-import jipthechip.diabolism.data.spell.Spell;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
@@ -77,7 +77,7 @@ public class ArcaneAltarScreen extends HandledScreen<ArcaneAltarScreenHandler> {
             int pureSegmentEndY = y+ BAR_START_Y -heightOffset;
 
             // draw pure segment
-            context.fill(segmentStartX, pureSegmentStartY, segmentEndX, pureSegmentEndY, 0,  Spell.ELEMENT_COLORS[fluid.getElement().ordinal()]);
+            context.fill(segmentStartX, pureSegmentStartY, segmentEndX, pureSegmentEndY, 0, MagicElementColors.MAP.get(fluid.getElement()));
 
             heightOffset += pureHeight;
 

@@ -4,6 +4,7 @@ package jipthechip.diabolism.entities;
 import jipthechip.diabolism.Utils.DataUtils;
 import jipthechip.diabolism.Utils.MathUtils;
 import jipthechip.diabolism.data.MagicElement;
+import jipthechip.diabolism.data.MagicElementColors;
 import jipthechip.diabolism.data.spell.Spell;
 import jipthechip.diabolism.effect.DiabolismEffects;
 import jipthechip.diabolism.mixin.EntityAccessor;
@@ -86,13 +87,12 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
 //        System.out.println("Bounding box size in tick: "+MathUtils.distanceBetween2Points(getBoundingBox().minX, getBoundingBox().minY, getBoundingBox().minZ, getBoundingBox().maxX, getBoundingBox().maxY, getBoundingBox().maxZ));
 
         ((EntityAccessor)this).setDimensions(EntityDimensions.fixed(getRadius()*1.2f, getRadius()*1.2f));
-        //System.out.println("before super tick: "+this.getBoundingBox());
 
         super.tick();
 
         if(!getWorld().isClient()) {
 
-            if(this.isTouchingWater() || this.isInLava()){
+            if(this.isTouchingWater() || this.isInLava() || this.groundCollision){
                 this.kill();
                 return;
             }
@@ -106,7 +106,6 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
     }
 
     private void playParticles() {
-        System.out.println("start of playParticles");
 
         float radius = getRadius();
 
@@ -125,7 +124,6 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
         for(int i = 0; i < LevelsVertical; i++){
             for(int j = 0; j < LevelsHorizontal; j++){
 
-                System.out.println("spawning particle");
                 Vec3d position = MathUtils.getPointOnSphere(((float)i/(float)LevelsVertical)*180.0f-90.0f, ((float)j/(float)LevelsHorizontal)*360.0f, radius, boundingBoxCenter);
                 PlayerLookup.tracking(this).forEach(player -> ((ServerWorld) getWorld()).spawnParticles(player,
                         ColoredSpellParticleFactory.createData(getParticleColor(), (int) (Math.random() * 25 + 10)), true, position.getX(), position.getY(), position.getZ(), 1,
@@ -166,7 +164,7 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
             MagicElement effectElement = elementalEffect.getElement();
 
             // get color for chosen spell effect
-            return Spell.ELEMENT_COLORS[effectElement.ordinal()];
+            return MagicElementColors.MAP.get(effectElement);
         }
 
         return 0;
@@ -182,8 +180,8 @@ public class ProjectileSpellEntity extends PersistentProjectileEntity {
         float radius = 0;
 
         for(StatusEffectInstanceData data : spellEffects){
-            float effectTotal = (data.getAmplifier() + ((float)data.getDuration() / 6))/2;
-            radius += (effectTotal / 100)/2;
+            float effectTotal = data.getAmplifier();
+            radius += (effectTotal / 100);
         }
         return Math.max(0.1f, radius);
     }

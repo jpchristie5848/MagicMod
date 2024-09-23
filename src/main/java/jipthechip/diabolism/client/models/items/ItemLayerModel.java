@@ -142,7 +142,6 @@ public class ItemLayerModel implements BakedModel, FabricBakedModel {
             }
         }
 
-        // TODO build verticals
         for(Direction facing : VERTICALS){
             for(int u = 0; u < uMax; u++){
                 int vStart = 0, vEnd = vMax;

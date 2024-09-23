@@ -1,5 +1,6 @@
 package jipthechip.diabolism.Utils;
 
+import io.wispforest.owo.util.ImplementedInventory;
 import jipthechip.diabolism.packets.BlockSyncPackets;
 import jipthechip.diabolism.packets.EntitySyncPackets;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -10,6 +11,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -39,5 +41,38 @@ public class PacketUtils {
                 //PlayerLookup.tracking(entity).forEach(player -> ServerPlayNetworking.send(player, BlockSyncPackets.SYNC_BLOCK_INVENTORY_W_CLIENT, buf));
             }
         }
+    }
+
+    public static void writeInventoryToBuffer(PacketByteBuf buf, Object dataSource){
+        if(dataSource instanceof ImplementedInventory invEntity){
+            DefaultedList<ItemStack> inventory = invEntity.getItems();
+            buf.writeInt(inventory.size());
+            for(int i = 0; i < inventory.size(); i++){
+                buf.writeItemStack(inventory.get(i));
+            }
+        }
+    }
+
+    public static DefaultedList<ItemStack> readInventoryFromBuffer(PacketByteBuf buf){
+        int inventorySize = 0;
+        try{
+            inventorySize = buf.readInt();
+            DefaultedList<ItemStack> inventory = DefaultedList.ofSize(inventorySize, ItemStack.EMPTY);
+            for(int i = 0; i < inventorySize; i++){
+                inventory.set(i, buf.readItemStack());
+            }
+            return inventory;
+        }catch(IndexOutOfBoundsException e){
+            if(inventorySize == 0){
+                System.out.println("readInventoryFromBuffer: Failed to read inventory because it wasn't found in the buffer");
+            }else{
+                System.err.println("readInventoryFromBuffer: Failed to read inventory because the actual number of itemstacks in the buffer is less than the inventory size");
+            }
+        }catch(Exception e){
+            System.err.println("readInventoryFromBuffer: an unhandled exception occurred.");
+            throw e;
+        }
+        return null;
+
     }
 }

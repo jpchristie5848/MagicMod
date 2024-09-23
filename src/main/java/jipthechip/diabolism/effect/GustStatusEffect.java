@@ -19,8 +19,6 @@ public class GustStatusEffect extends AbstractElementalStatusEffect {
     @Override
     public void applyInstantEffect(@Nullable Entity source, @Nullable Entity attacker, LivingEntity target, int amplifier, double proximity) {
 
-        System.out.println("apply instant effect called");
-
         if(source instanceof ProjectileSpellEntity projectile){
             Vec3d projVelocity = projectile.getVelocity();
             projVelocity.add(0,projVelocity.getY()*-1,0);

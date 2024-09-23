@@ -1,20 +1,18 @@
-package jipthechip.diabolism.entities.blockentities.screen;
+package jipthechip.diabolism.screen;
 
-import jipthechip.diabolism.Utils.PacketUtils;
 import jipthechip.diabolism.entities.blockentities.AbstractSyncedBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.math.BlockPos;
 
-public class ClientSyncingSlot extends Slot {
+public class SyncedBlockEntitySlot extends Slot {
 
     protected BlockEntity entity;
     protected Inventory inventory;
 
-    public ClientSyncingSlot(BlockEntity entity, Inventory inventory, int index, int x, int y) {
+    public SyncedBlockEntitySlot(BlockEntity entity, Inventory inventory, int index, int x, int y) {
         super(inventory, index, x, y);
         this.entity = entity;
         this.inventory = inventory;

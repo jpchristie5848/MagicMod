@@ -1,14 +1,19 @@
 package jipthechip.diabolism.Utils;
 
+import io.wispforest.owo.util.ImplementedInventory;
 import jipthechip.diabolism.data.MagicElement;
 import jipthechip.diabolism.data.brewing.Fluid;
+import jipthechip.diabolism.data.spell.Wand;
+import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.collection.DefaultedList;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class DataUtils {
@@ -71,21 +76,23 @@ public class DataUtils {
 
             return Base64.getEncoder().encodeToString(baos.toByteArray());
         }catch(IOException e){
-            System.out.println("error serializing object of class '"+o.getClass()+"': "+e.getMessage());
+            System.out.println("error serializing object of class '"+o.getClass()+"': "+e.toString());
             return null;
         }
     }
 
-    public static <T extends Serializable> void writeObjectToItemNbt(ItemStack stack, T obj){
+    public static <T extends Serializable> NbtCompound writeObjectToItemNbt(ItemStack stack, T obj){
         NbtCompound nbt = new NbtCompound();
         String key;
         if(obj instanceof Fluid){
-                key = Fluid.class.getName().toLowerCase();
-        }else{
+            key = Fluid.class.getName().toLowerCase();
+        }
+        else{
             key = obj.getClass().getName().toLowerCase();
         }
         nbt.putString(key, SerializeToString(obj));
         stack.setNbt(nbt);
+        return nbt;
     }
 
     public static <T extends Serializable> T readObjectFromItemNbt(ItemStack stack, Class<T> objClass){

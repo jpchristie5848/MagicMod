@@ -1,6 +1,7 @@
 package jipthechip.diabolism.effect;
 
 import jipthechip.diabolism.data.MagicElement;
+import jipthechip.diabolism.data.MagicElementColors;
 import jipthechip.diabolism.data.spell.Spell;
 import jipthechip.diabolism.particle.ColoredSpellParticleFactory;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -25,7 +26,7 @@ public abstract class AbstractElementalStatusEffect extends ClientSyncedStatusEf
         if(world instanceof ServerWorld serverWorld){
 
             int numParticles = (int) Math.pow(amplifier, 1.3);
-            int particleColor = Spell.ELEMENT_COLORS[this.getElement().ordinal()];
+            int particleColor = MagicElementColors.MAP.get(this.getElement());
 
 
             for(int i = 0; i < numParticles; i++){

@@ -6,14 +6,18 @@ import jipthechip.diabolism.blocks.DiabolismBlocks;
 import jipthechip.diabolism.data.*;
 import jipthechip.diabolism.data.brewing.Fluid;
 import jipthechip.diabolism.data.brewing.Yeast;
-import jipthechip.diabolism.data.spell.Spell;
-import jipthechip.diabolism.data.spell.SpellModifier;
-import jipthechip.diabolism.data.spell.SpellTemplate;
-import jipthechip.diabolism.data.spell.SpellType;
+import jipthechip.diabolism.data.spell.*;
+import jipthechip.diabolism.entities.blockentities.AbstractSyncedBlockEntity;
+import jipthechip.diabolism.packets.BlockEntitySyncPacket;
+import jipthechip.diabolism.packets.ItemSyncPacket;
 import jipthechip.diabolism.packets.StatusEffectInstanceData;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.minecraft.block.Block;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.FoodComponents;
@@ -53,7 +57,7 @@ public class DiabolismItems {
 
     public static final Item WIZWICH = new WizwichItem(new FabricItemSettings().maxCount(1).food(FoodComponents.COOKIE));
 
-    public static final Item SPELL_GLYPH = new SpellGlyph(new FabricItemSettings().maxCount(1));
+    public static final Item SPELL_GEM = new SpellGem(new FabricItemSettings().maxCount(1));
 
 
 
@@ -86,7 +90,7 @@ public class DiabolismItems {
 
     public static void registerItems(){
         Registry.register(Registries.ITEM, new Identifier("diabolism", "rune_powder"), RUNE_POWDER);
-        Registry.register(Registries.ITEM, new Identifier("diabolism", "basic_wand"), BASIC_WAND);
+        registerItemWithData(BASIC_WAND, new Identifier("diabolism", "basic_wand"), Wand.class);
         Registry.register(Registries.ITEM, new Identifier("diabolism", "volatile_mixture"), VOLATILE_MIXTURE);
         Registry.register(Registries.ITEM, new Identifier("diabolism", "mortar_and_pestle"), MORTAR_AND_PESTLE);
         Registry.register(Registries.ITEM, new Identifier("diabolism", "totem_of_thunder"), TOTEM_OF_THUNDER);
@@ -100,7 +104,7 @@ public class DiabolismItems {
         Registry.register(Registries.ITEM, new Identifier("diabolism", "magicka_crystal"), MAGICKA_CRYSTAL);
         Registry.register(Registries.ITEM, new Identifier("diabolism", "spell_modifier"), SPELL_MODIFIER);
         Registry.register(Registries.ITEM, new Identifier("diabolism", "wizwich"), WIZWICH);
-        Registry.register(Registries.ITEM, new Identifier("diabolism", "spell_glyph"), SPELL_GLYPH);
+        Registry.register(Registries.ITEM, new Identifier("diabolism", "spell_gem"), SPELL_GEM);
 
 
         Registry.register(Registries.ITEM, new Identifier("diabolism", "powder_covered_polished_blackstone"), POWDER_COVERED_POLISHED_BLACKSTONE_BLOCKITEM);
@@ -120,7 +124,12 @@ public class DiabolismItems {
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.DIABOLISM_ITEM_GROUP_KEY).register(entries -> {
             entries.add(RUNE_POWDER);
-            entries.add(BASIC_WAND);
+
+            ItemStack wandStack = new ItemStack(BASIC_WAND);
+            Wand wand = new Wand(wandStack);
+            wand.writeToItemNbt();
+            entries.add(wandStack);
+
             entries.add(VOLATILE_MIXTURE);
             entries.add(MORTAR_AND_PESTLE);
             entries.add(TOTEM_OF_THUNDER);
@@ -247,7 +256,7 @@ public class DiabolismItems {
             DataUtils.writeObjectToItemNbt(wizwichExtremeStack, wizwichExtreme);
             entries.add(wizwichExtremeStack);
 
-            ItemStack spellGlyph = new ItemStack(SPELL_GLYPH);
+            ItemStack spellGlyph = new ItemStack(SPELL_GEM);
             Spell spell = new Spell(SpellType.PROJECTILE, new StatusEffectInstanceData("chilly", 100, 100), new StatusEffectInstanceData("wet", 100, 100));
             DataUtils.writeObjectToItemNbt(spellGlyph, spell);
             entries.add(spellGlyph);
@@ -289,20 +298,17 @@ public class DiabolismItems {
             }
             return 0xFFFFFFFF;
         }, MYSTICAL_YEAST);
-
-//        ColorProviderRegistry.ITEM.register((stack, tintIndex)->{
-//            MagickaCrystal magickaCrystal = DataUtils.readObjectFromItemNbt(stack, MagickaCrystal.class);
-//            if(magickaCrystal != null){
-//                return Spell.ELEMENT_COLORS[magickaCrystal.getElement().ordinal()];
-//            }
-//            return 0xFFFFFFFF;
-//        }, MAGICKA_CRYSTAL);
     }
 
-    private static void registerItemModelPredicateProviders(){
-
+    private static <P extends AbstractSyncedItemData> void registerItemWithData(Item item, Identifier id, Class<P> dataClass){
+        addSyncPacket(dataClass);
+        Registry.register(Registries.ITEM, id, item);
     }
 
+    private static <P extends AbstractSyncedItemData> void addSyncPacket(Class<P> dataClass){
+        System.out.println("Registering Sync Packet for item: '"+dataClass.getSimpleName()+"'");
+        AbstractSyncedItemData.SYNC_PACKETS.put(dataClass.getSimpleName().toLowerCase(), ItemSyncPacket.registerSyncPacket(dataClass));
+    }
     public static void initializeClient(){
         registerItemColorProviders();
         ModelPredicateProviderRegistry.register(POWDER_COVERED_POLISHED_BLACKSTONE_BLOCKITEM, new Identifier("diabolism", "progress"), (itemStack, clientWorld, livingEntity, arg4) ->

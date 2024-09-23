@@ -9,7 +9,7 @@ import net.minecraft.util.thread.ReentrantThreadExecutor;
 
 import javax.annotation.Nullable;
 
-public abstract class SyncPacket<E> extends AbstractDiabolismPacket implements ClientReceiverPacket, ServerReceiverPacket{
+public abstract class SyncPacket<D> extends AbstractDiabolismPacket implements ClientReceiverPacket, ServerReceiverPacket{
 
 
     public SyncPacket(String string) {
@@ -29,7 +29,7 @@ public abstract class SyncPacket<E> extends AbstractDiabolismPacket implements C
             receiveSyncPacket(server, buf, handler);};
     }
 
-    public abstract void sendSyncPacket(E entity);
+    public abstract void sendSyncPacket(D dataSource);
 
     protected abstract void receiveSyncPacket(ReentrantThreadExecutor executor, PacketByteBuf buf, @Nullable PacketListener handler);
 

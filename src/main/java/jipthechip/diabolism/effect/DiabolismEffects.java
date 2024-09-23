@@ -1,5 +1,9 @@
 package jipthechip.diabolism.effect;
 
+import jipthechip.diabolism.data.MagicElement;
+import jipthechip.diabolism.entities.blockentities.ArcaneAltar;
+import jipthechip.diabolism.packets.StatusEffectInstanceData;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -45,5 +49,24 @@ public class DiabolismEffects {
         //BrewingRecipeRegistryAccessor.invokeRegisterPotionRecipe(Potions.AWKWARD, DiabolismItems.VOLATILE_MIXTURE, DiabolismEffects.AWAKENING_POTION);
     }
 
+    public static StatusEffectInstanceData getEffectForSpell(MagicElement element, ArcaneAltar altar){
+        float elementConcentration = altar.getScaledMagicElement(element);
+        float orderConcentration = altar.getScaledMagicElement(MagicElement.ORDER);
+        float chaosConcentration = altar.getScaledMagicElement(MagicElement.CHAOS);
+        if(elementConcentration > 0 && (orderConcentration > 0 || chaosConcentration > 0)){
+            int amplifier = Math.round((elementConcentration + (Math.max(orderConcentration, chaosConcentration))) * 100);
+            switch(element){
+                case AIR:
+                    return new StatusEffectInstanceData(orderConcentration > chaosConcentration ? "updraft" : "gust", 100, amplifier);
+                case FIRE:
+                    return new StatusEffectInstanceData("burning", 100, amplifier);
+                case WATER:
+                    return new StatusEffectInstanceData("wet", 100, amplifier);
+                case EARTH:
+                    return new StatusEffectInstanceData("broken_bones", 100, amplifier);
+            }
+        }
+        return null;
+    }
 
 }
